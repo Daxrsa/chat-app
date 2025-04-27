@@ -1,1 +1,71 @@
-/* You can add global styles to this file, and also import other style files */
+.navbar {
+    width: 100%;
+    min-height: 60px;
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.sidebar-left {
+    width: 250px;
+    min-height: calc(100vh - 60px);
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-right: 1px solid #dee2e6;
+}
+
+.content-area {
+    flex-grow: 1;
+    min-height: calc(100vh - 60px);
+    padding: 15px;
+}
+
+.sidebar-right {
+    width: 250px;
+    min-height: calc(100vh - 60px);
+    background-color: #f1f1f1;
+    padding: 15px;
+    border-left: 1px solid #dee2e6;
+}
+
+body:after {
+    /* content: "xs"; */
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    font-size: 50px;
+    z-index: 9999;
+}
+
+@media (min-width: 576px) {
+    body:after {
+        content: "sm, 576px";
+    }
+}
+
+@media (min-width: 768px) {
+    body:after {
+        content: "md, 768px";
+    }
+}
+
+@media (min-width: 992px) {
+    body:after {
+        content: "lg, 992px";
+    }
+}
+
+@media (min-width: 1200px) {
+    body:after {
+        content: "xl, 1200px";
+    }
+}
+
+@media (min-width: 1400px) {
+    body:after {
+        content: "xxl, 1400px";
+    }
+}
