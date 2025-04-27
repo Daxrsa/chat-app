@@ -1,8 +1,14 @@
-<div class="d-flex flex-column">
+<div class="d-flex flex-column w-100">
     <app-navbar></app-navbar>
     <div class="d-flex justify-content-between">
-        <app-left-sidebar></app-left-sidebar>
-        <app-chat-area></app-chat-area>
-        <app-right-sidebar></app-right-sidebar>
+        <div class="sidebar-left p-4">
+            <app-left-sidebar></app-left-sidebar>
+        </div>
+        <div class="chat-area p-4">
+            <app-chat-area></app-chat-area>
+        </div>
+        <div class="sidebar-right p-4">
+            <app-right-sidebar></app-right-sidebar>
+        </div>
     </div>
 </div>

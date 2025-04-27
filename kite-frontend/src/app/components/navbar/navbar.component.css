@@ -1,4 +1,9 @@
-.navbar {
+.nav-bar {
     width: 100%;
     min-height: 60px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: auto;
 }

@@ -1,0 +1,66 @@
+.chat-area {
+    flex-grow: 1;
+    min-height: calc(100vh - 60px);
+}
+
+.sidebar-left {
+    width: 350px;
+    min-height: calc(100vh - 60px);
+    border-right: 1px solid #dee2e6;
+}
+
+.sidebar-right {
+    width: 350px;
+    min-height: calc(100vh - 60px);
+    border-left: 1px solid #dee2e6;
+}
+
+@media (min-width: 576px) {
+    .chat-area {}
+
+    .sidebar-left {}
+
+    .navbar {}
+
+    .sidebar-right {}
+}
+
+@media (min-width: 768px) {
+    .chat-area {}
+
+    .sidebar-left {}
+
+    .navbar {}
+
+    .sidebar-right {}
+}
+
+@media (min-width: 992px) {
+    .chat-area {}
+
+    .sidebar-left {}
+
+    .navbar {}
+
+    .sidebar-right {}
+}
+
+@media (min-width: 1200px) {
+    .chat-area {}
+
+    .sidebar-left {}
+
+    .navbar {}
+
+    .sidebar-right {}
+}
+
+@media (min-width: 1400px) {
+    .chat-area {}
+
+    .sidebar-left {}
+
+    .navbar {}
+
+    .sidebar-right {}
+}
