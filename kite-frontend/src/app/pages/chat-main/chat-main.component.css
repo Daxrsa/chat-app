@@ -1,18 +1,23 @@
 .chat-area {
     flex-grow: 1;
     min-height: calc(100vh - 60px);
+    background-color: #F4F4FA;
 }
 
 .sidebar-left {
     width: 350px;
     min-height: calc(100vh - 60px);
-    border-right: 1px solid #dee2e6;
+    border-right: none;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    background-color: #F2EFFF;
 }
 
 .sidebar-right {
     width: 350px;
     min-height: calc(100vh - 60px);
     border-left: 1px solid #dee2e6;
+    background-color: #F4F4FA;
 }
 
 @media (min-width: 576px) {

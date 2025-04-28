@@ -1,1 +1,37 @@
-Left Sidebar
+<div class="left-sidebar-body p-4">
+    <div class="search-container d-flex gap-3">
+        <input type="text" class="form-control search-input" placeholder="Search a contact">
+        <i class="fas fa-search search-icon"></i>
+    </div>
+    <div class="n-msg d-flex justify-content-between align-items-center mt-3">
+        <div class="custom-toggle-switch">
+            <input type="checkbox" id="modeToggle" [(ngModel)]="isNewMode" class="toggle-input">
+            <label for="modeToggle" class="toggle-label">
+                <span class="label-text all-text">All</span>
+                <span class="label-text unread-text">Unread</span>
+                <span class="toggle-handle"></span>
+            </label>
+        </div>
+        <button type="button" class="d-flex gap-2 pe-3 pt-1 pb-1 ps-3 text-white circle fw-light"><i
+                class="bi bi-send-plus"></i>New message</button>
+    </div>
+</div>
+<div class="divider"></div>
+<div class="left-sidebar-body pt-4 pe-4 pb-4">
+    <div class="card border-0">
+        <div class="d-flex align-items-start gap-3 w-100 p-3">
+            <img class="img-fluid user-avatar object-fit-contain" src="../../../assets/images/male-avatar.webp"
+                alt="User Avatar">
+            <div class="d-flex flex-column">
+                <div class="user-info">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="m-0 p-0">John Mayer</h6>
+                        <span class="custom-medium-font custom-grey">10:36</span>
+                    </div>
+                    <p class="m-0 p-0 custom-small-font">Available on Kite</p>
+                </div>
+                <p class="card-text custom-medium-font fw-light">Wanna hang out tomorrow?</p>
+            </div>
+        </div>
+    </div>
+</div>

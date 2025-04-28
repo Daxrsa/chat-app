@@ -1,0 +1,125 @@
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    height: 40px;
+    border-radius: 30px;
+    padding-left: 50px;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-input::placeholder {
+    color: #979AA0;
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #979AA0;
+}
+
+.n-msg button {
+    background-color: #724FF9;
+    border-radius: 30px;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    transition: 0.2s ease-in-out;
+}
+
+.n-msg button:hover {
+    background-color: #4933a0;
+}
+
+.custom-toggle-switch {
+    position: relative;
+    display: inline-block;
+}
+
+.toggle-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.toggle-label {
+    display: block;
+    position: relative;
+    width: 120px;
+    height: 25px;
+    /* Height of the toggle */
+    background-color: #e9ecef;
+    border-radius: 34px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background-color 0.3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.toggle-handle {
+    position: absolute;
+    content: "";
+    height: 19px;
+    width: 50px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 34px;
+    transition: transform 0.3s;
+    z-index: 2;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.toggle-input:checked+.toggle-label .toggle-handle {
+    transform: translateX(63.5px);
+}
+
+.label-text {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1;
+    transition: opacity 0.3s;
+}
+
+.all-text {
+    left: 12px;
+    opacity: 0.5;
+}
+
+.unread-text {
+    right: 12px;
+    opacity: 0.5;
+}
+
+.toggle-input:checked+.toggle-label .all-text {
+    opacity: 1;
+    color: white;
+}
+
+.toggle-input:not(:checked)+.toggle-label .unread-text {
+    opacity: 1;
+    color: #979AA0;;
+}
+
+.toggle-input:checked+.toggle-label {
+    background-color: #162C4D;
+}
+
+.toggle-input:not(:checked)+.toggle-label {
+    background-color: #F4F4FA;
+}
+
+.divider {
+    border-bottom: 1px solid #DEE2E6;
+}
+
+.user-info p {
+    color: #979AA0;
+}
