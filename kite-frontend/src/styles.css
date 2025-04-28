@@ -15,6 +15,53 @@
     color: #979AA0;
 }
 
+/* Target all input placeholders */
+::placeholder {
+    color: #979AA0 !important;
+    opacity: 1;
+    /* Firefox requires this to apply color */
+}
+
+/* For older browsers - each needs its own vendor prefix */
+::-webkit-input-placeholder {
+    /* Chrome/Safari/Opera */
+    color: #979AA0 !important;
+}
+
+::-moz-placeholder {
+    /* Firefox 19+ */
+    color: #979AA0 !important;
+    opacity: 1;
+}
+
+:-ms-input-placeholder {
+    /* IE 10+ */
+    color: #979AA0 !important;
+}
+
+:-moz-placeholder {
+    /* Firefox 18- */
+    color: #979AA0 !important;
+    opacity: 1;
+}
+
+/* Remove focus outline/border from all input elements */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: inherit;
+}
+
+/* If you're using Bootstrap, you might need this additional rule */
+.form-control:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: inherit;
+}
+
 body:after {
     /* content: "xs"; */
     position: fixed;

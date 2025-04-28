@@ -105,7 +105,8 @@
 
 .toggle-input:not(:checked)+.toggle-label .unread-text {
     opacity: 1;
-    color: #979AA0;;
+    color: #979AA0;
+    ;
 }
 
 .toggle-input:checked+.toggle-label {
@@ -122,4 +123,47 @@
 
 .user-info p {
     color: #979AA0;
+}
+
+.position-relative {
+    position: relative;
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    transform: translate(0, 0);
+}
+
+.status-indicator.online {
+    background-color: #28a745;
+}
+
+.status-indicator.offline {
+    background-color: #6c757d;
+}
+
+.status-indicator.busy {
+    background-color: #dc3545;
+}
+
+.status-indicator.away {
+    background-color: #ffc107;
+}
+
+.bi-three-dots {
+    cursor: pointer;
+}
+
+.bi-three-dots:hover {
+    color: #724FF9; 
+}
+
+.card:hover {
+    cursor: pointer;
 }

@@ -1,0 +1,19 @@
+.actions i.bi:not(i.bi-trash3) {
+    font-size: 1.5rem;
+    color: #6070A3;
+    cursor: pointer;
+}
+
+.actions i.bi-trash3 {
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.send-msg-btn {
+    background-color: #724FF9;
+    transition: 0.1s ease-in-out;
+}
+
+.send-msg-btn:hover {
+    background-color: #4933a0;
+}
