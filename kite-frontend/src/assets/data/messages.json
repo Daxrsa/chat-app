@@ -1,0 +1,143 @@
+{
+    "conversations": [
+      {
+        "id": "conv123456",
+        "participants": [
+          {
+            "id": "user1",
+            "name": "John Mayer",
+            "avatar": "../assets/images/male-avatar.webp",
+            "status": "online"
+          },
+          {
+            "id": "user2",
+            "name": "Emma Wilson",
+            "avatar": "../assets/images/female-avatar.webp",
+            "status": "online"
+          }
+        ],
+        "messages": [
+          {
+            "id": "msg1",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "Hey Emma, how's it going?",
+            "timestamp": "2025-04-28T20:15:30Z",
+            "status": "read"
+          },
+          {
+            "id": "msg2",
+            "sender": "user2",
+            "recipient": "user1",
+            "text": "Hi John! I'm doing well, thanks for asking. Just finished working on that project we discussed last week.",
+            "timestamp": "2025-04-28T20:17:45Z",
+            "status": "read"
+          },
+          {
+            "id": "msg3",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "That's great to hear! How did it turn out?",
+            "timestamp": "2025-04-28T20:18:20Z",
+            "status": "read"
+          },
+          {
+            "id": "msg4",
+            "sender": "user2",
+            "recipient": "user1",
+            "text": "It went really well! I incorporated your suggestions and it made a huge difference. The client was impressed.",
+            "timestamp": "2025-04-28T20:20:05Z",
+            "status": "read"
+          },
+          {
+            "id": "msg5",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "That's fantastic! 🎉 I knew you'd knock it out of the park!",
+            "timestamp": "2025-04-28T20:21:15Z",
+            "status": "read"
+          },
+          {
+            "id": "msg6",
+            "sender": "user2",
+            "recipient": "user1",
+            "text": "Thanks for the vote of confidence. By the way, are you free for a quick call tomorrow to discuss the next phase?",
+            "timestamp": "2025-04-28T20:23:30Z",
+            "status": "read"
+          },
+          {
+            "id": "msg7",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "Absolutely! I'm free between 2-5pm tomorrow. Would any time in that window work for you?",
+            "timestamp": "2025-04-28T20:25:10Z",
+            "status": "read"
+          },
+          {
+            "id": "msg8",
+            "sender": "user2",
+            "recipient": "user1",
+            "text": "Perfect! Let's do 3pm then. I'll send a calendar invite with the meeting link.",
+            "timestamp": "2025-04-28T20:26:45Z",
+            "status": "read"
+          },
+          {
+            "id": "msg9",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "Sounds good! I've been working on some new ideas that I think would really elevate the next phase.",
+            "timestamp": "2025-04-28T20:28:20Z",
+            "status": "read"
+          },
+          {
+            "id": "msg10",
+            "sender": "user2",
+            "recipient": "user1",
+            "text": "I'm excited to hear them! Your insights on the last phase were invaluable.",
+            "timestamp": "2025-04-28T20:30:00Z",
+            "status": "read"
+          },
+          {
+            "id": "msg11",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "Thanks, Emma. I'm also thinking we should bring Alex into the conversation. He has some expertise that could be useful.",
+            "timestamp": "2025-04-28T20:32:15Z",
+            "status": "delivered"
+          },
+          {
+            "id": "msg12",
+            "sender": "user2",
+            "recipient": "user1",
+            "text": "That's a great idea! I'll include him in the invite. Should we prepare any materials beforehand?",
+            "timestamp": "2025-04-28T20:35:05Z",
+            "status": "delivered"
+          },
+          {
+            "id": "msg13",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "I'll put together a quick outline of my ideas and share it before the call. Nothing too formal.",
+            "timestamp": "2025-04-28T20:37:30Z",
+            "status": "sent"
+          },
+          {
+            "id": "msg14",
+            "sender": "user2",
+            "recipient": "user1",
+            "text": "Perfect! Looking forward to it. Have a great rest of your day!",
+            "timestamp": "2025-04-28T20:39:50Z",
+            "status": "sent"
+          },
+          {
+            "id": "msg15",
+            "sender": "user1",
+            "recipient": "user2",
+            "text": "You too, Emma! See you tomorrow. 👋",
+            "timestamp": "2025-04-28T20:41:10Z",
+            "status": "sent"
+          }
+        ]
+      }
+    ]
+  }

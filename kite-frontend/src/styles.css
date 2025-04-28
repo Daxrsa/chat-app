@@ -15,6 +15,10 @@
     color: #979AA0;
 }
 
+.custom-blueviolet {
+    color: #724FF9;
+}
+
 /* Target all input placeholders */
 ::placeholder {
     color: #979AA0 !important;
@@ -43,6 +47,10 @@
     /* Firefox 18- */
     color: #979AA0 !important;
     opacity: 1;
+}
+
+.divider {
+    border-bottom: 1px solid #DEE2E6;
 }
 
 /* Remove focus outline/border from all input elements */

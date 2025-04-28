@@ -1,14 +1,35 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Conversation } from '../../intefaces';
+import { MessagesService } from '../../services/messages.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-chat-area',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './chat-area.component.html',
   styleUrl: './chat-area.component.css'
 })
 export class ChatAreaComponent {
   @ViewChild('messageInput') messageInputElement!: ElementRef;
   @ViewChild('send_msg') textareaRef!: ElementRef<HTMLTextAreaElement>;
+
+  conversations: Conversation[] = [];
+
+  constructor(
+    private messageService: MessagesService
+  ) {} 
+
+  ngOnInit(): void {
+    this.messageService.getMessages().subscribe({
+      next: (data: Conversation[]) => {
+        this.conversations = data;
+        console.log('Conversations received:', this.conversations);
+      },
+      error: (err) => {
+        console.error('Error fetching conversations:', err);
+      },
+    });
+  }
 
   ngAfterViewInit() {
     if (this.messageInputElement) {
