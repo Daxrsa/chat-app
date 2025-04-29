@@ -25,6 +25,7 @@
     border-radius: 30px;
     border: none;
     transition: 0.2s ease-in-out;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .import-contacts-btn:hover {
