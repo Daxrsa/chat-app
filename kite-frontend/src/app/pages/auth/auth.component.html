@@ -1,1 +1,98 @@
-<p>auth works!</p>
+<div class="container-fluid">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <!-- Right panel with login form -->
+        <div class="col-lg-6 col-md-12 d-flex align-items-center justify-content-center">
+            <div class="card border-0 shadow-lg p-4" style="width: 24rem;">
+                <div class="card-body">
+                    <!-- App logo for mobile -->
+                    <div class="text-center d-lg-none mb-4">
+                        <i class="bi bi-chat-dots-fill text-primary" style="font-size: 3rem;"></i>
+                        <h2 class="fw-bold text-primary">Kite</h2>
+                    </div>
+
+                    <h3 class="card-title text-center mb-4">Sign In</h3>
+
+                    <!-- Alert for errors
+                    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ errorMessage }}
+                        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+                    </div> -->
+
+                    <!-- Login Form -->
+                    <form>
+                        <!-- Username/Email field -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username or Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" id="username" formControlName="username" class="form-control"
+                                    placeholder="Enter your username or email">
+                            </div>
+                            
+                        </div>
+
+                        <!-- Password field -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label for="password" class="form-label">Password</label>
+                                <a href="#" class="text-decoration-none small">Forgot Password?</a>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                                <input 
+                                    formControlName="password" class="form-control" placeholder="Enter your password">
+                                <button class="input-group-text bg-light" type="button">
+                                    <i class="bi"></i>
+                                </button>
+                            </div>
+                          
+                        </div>
+
+                        <!-- Remember me checkbox -->
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe"
+                                formControlName="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+
+                        <!-- Submit button -->
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-primary py-2"
+                               >
+                                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"
+                                    aria-hidden="true"></span>
+                                Sign In
+                            </button>
+                        </div>
+
+                        <!-- Social login options -->
+                        <div class="text-center mb-3">
+                            <p class="text-muted mb-2 small">Or continue with</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary rounded-circle">
+                                    <i class="bi bi-google"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary rounded-circle">
+                                    <i class="bi bi-facebook"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary rounded-circle">
+                                    <i class="bi bi-apple"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sign up link -->
+                        <div class="text-center">
+                            <p class="mb-0">Don't have an account? <a href="#" class="text-decoration-none">Sign up</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
