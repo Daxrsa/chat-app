@@ -1,0 +1,104 @@
+{
+    "friends": [
+        {
+            "id": 1,
+            "name": "John Mayer",
+            "status": "online",
+            "statusMessage": "Hey there! I am using Kite",
+            "avatar": "../../../assets/images/male-avatar.webp",
+            "lastMessage": "Wanna hang out tomorrow?",
+            "timestamp": "2025-04-29T08:45:00Z",
+            "unread": 2
+        },
+        {
+            "id": 2,
+            "name": "Emma Wilson",
+            "status": "online",
+            "statusMessage": "Available for chat",
+            "avatar": "../../../assets/images/female-avatar.webp",
+            "lastMessage": "Did you get my email about the project?",
+            "timestamp": "2025-04-29T08:30:12Z",
+            "unread": 0
+        },
+        {
+            "id": 3,
+            "name": "Mike Johnson",
+            "status": "offline",
+            "statusMessage": "At the gym 💪",
+            "avatar": "../../../assets/images/male-avatar2.webp",
+            "lastMessage": "Let me know when you're free to discuss the presentation",
+            "timestamp": "2025-04-28T22:15:45Z",
+            "unread": 0
+        },
+        {
+            "id": 4,
+            "name": "Sophia Chen",
+            "status": "online",
+            "statusMessage": "Working from home today",
+            "avatar": "../../../assets/images/female-avatar2.webp",
+            "lastMessage": "Thanks for the coffee recommendation!",
+            "timestamp": "2025-04-29T07:55:20Z",
+            "unread": 3
+        },
+        {
+            "id": 5,
+            "name": "David Kim",
+            "status": "away",
+            "statusMessage": "In a meeting until 3 PM",
+            "avatar": "../../../assets/images/male-avatar3.webp",
+            "lastMessage": "Can you send me the files we discussed yesterday?",
+            "timestamp": "2025-04-29T06:40:33Z",
+            "unread": 1
+        },
+        {
+            "id": 6,
+            "name": "Lisa Rodriguez",
+            "status": "online",
+            "statusMessage": "Just finished my new portfolio!",
+            "avatar": "../../../assets/images/female-avatar3.webp",
+            "lastMessage": "Check out the link I just sent you",
+            "timestamp": "2025-04-29T09:05:11Z",
+            "unread": 0
+        },
+        {
+            "id": 7,
+            "name": "Alex Thompson",
+            "status": "offline",
+            "statusMessage": "On vacation until May 5th 🏖️",
+            "avatar": "../../../assets/images/male-avatar4.webp",
+            "lastMessage": "I'll send you the photos when I get back",
+            "timestamp": "2025-04-27T15:22:50Z",
+            "unread": 0
+        },
+        {
+            "id": 8,
+            "name": "Olivia Martinez",
+            "status": "online",
+            "statusMessage": "Music lover 🎵",
+            "avatar": "../../../assets/images/female-avatar4.webp",
+            "lastMessage": "Have you heard the new album? It's amazing!",
+            "timestamp": "2025-04-29T08:50:27Z",
+            "unread": 5
+        },
+        {
+            "id": 9,
+            "name": "James Wilson",
+            "status": "busy",
+            "statusMessage": "Don't disturb unless urgent",
+            "avatar": "../../../assets/images/male-avatar5.webp",
+            "lastMessage": "I'll call you back in an hour",
+            "timestamp": "2025-04-29T08:15:42Z",
+            "unread": 0
+        },
+        {
+            "id": 10,
+            "name": "Amelia Clark",
+            "status": "online",
+            "statusMessage": "Coffee enthusiast ☕",
+            "avatar": "../../../assets/images/female-avatar5.webp",
+            "lastMessage": "Let's meet at the new café downtown",
+            "timestamp": "2025-04-29T09:10:03Z",
+            "unread": 1
+        }
+    ]
+}

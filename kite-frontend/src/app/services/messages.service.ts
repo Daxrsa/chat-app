@@ -7,11 +7,11 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class MessagesService {
-  private goldPackagesUrl = 'assets/data/messages.json';
+  private messagesUrl = 'assets/data/messages.json';
 
   constructor(private http: HttpClient) { }
 
   getMessages(): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(this.goldPackagesUrl);
+    return this.http.get<Conversation[]>(this.messagesUrl);
   }
 }

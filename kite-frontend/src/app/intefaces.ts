@@ -23,3 +23,18 @@ export interface Conversation {
 export interface ConversationResponse {
     conversations: Conversation[];
 }
+
+export interface Friend {
+    id: number;
+    name: string;
+    status: 'online' | 'offline' | 'away' | 'busy';
+    statusMessage: string;
+    avatar: string;
+    lastMessage: string;
+    timestamp: string;
+    unread: number;
+}
+
+export interface FriendsResponse {
+    friends: Friend[];
+}
