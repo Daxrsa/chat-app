@@ -19,6 +19,10 @@
     color: #724FF9;
 }
 
+.custom-bg-blueviolet {
+    background-color: #724FF9;
+}
+
 /* Target all input placeholders */
 ::placeholder {
     color: #979AA0 !important;

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { LeftSidebarComponent } from '../../components/left-sidebar/left-sidebar.component';
 import { RightSidebarComponent } from '../../components/right-sidebar/right-sidebar.component';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { NavbarComponent } from '../../components/shared/navbar/navbar.component';
 import { ChatAreaComponent } from '../../components/chat-area/chat-area.component';
 
 @Component({

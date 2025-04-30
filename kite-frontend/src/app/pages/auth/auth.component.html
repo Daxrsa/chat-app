@@ -1,75 +1,105 @@
-<div class="container-fluid">
+<div class="auth container-fluid">
     <div class="d-flex justify-content-center align-items-center vh-100">
-        <!-- Right panel with login form -->
         <div class="col-lg-6 col-md-12 d-flex align-items-center justify-content-center">
             <div class="card border-0 shadow-lg p-4" style="width: 24rem;">
                 <div class="card-body">
-                    <!-- App logo for mobile -->
-                    <div class="text-center d-lg-none mb-4">
-                        <i class="bi bi-chat-dots-fill text-primary" style="font-size: 3rem;"></i>
-                        <h2 class="fw-bold text-primary">Kite</h2>
+                    <div class="d-flex gap-2 flex-column align-items-center">
+                        <img class="user-avatar img-fluid" src="../../../assets/icons/kite.png" alt="Kite Logo">
+                        <h4 class="card-title text-center mb-3 text-muted">{{ isLogin ? 'Log in' : 'Register' }}</h4>
                     </div>
 
-                    <h3 class="card-title text-center mb-4">Sign In</h3>
-
-                    <!-- Alert for errors
+                    <!-- Alert for errors -->
                     <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ errorMessage }}
                         <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
-                    </div> -->
+                    </div>
 
-                    <!-- Login Form -->
-                    <form>
-                        <!-- Username/Email field -->
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username or Email</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-person"></i>
-                                </span>
-                                <input type="text" id="username" formControlName="username" class="form-control"
-                                    placeholder="Enter your username or email">
+                    <form (ngSubmit)="handleSubmit($event)">
+                        <!-- Registration fields - shown only when isLogin is false -->
+                        <ng-container *ngIf="!isLogin">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <input type="text" id="firstName" class="form-control" 
+                                        [(ngModel)]="firstName" name="firstName"
+                                        placeholder="First Name">
+                                </div>
                             </div>
-                            
+
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <input type="text" id="lastName" class="form-control"
+                                        [(ngModel)]="lastName" name="lastName"
+                                        placeholder="Last Name">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <input type="text" id="emailOrPhone" class="form-control"
+                                        [(ngModel)]="emailOrPhone" name="emailOrPhone"
+                                        placeholder="Email or Phone Number">
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <!-- Common fields for both login and register -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <input type="text" id="username" class="form-control"
+                                    [(ngModel)]="username" name="username"
+                                    placeholder="Enter your username {{ isLogin ? 'or email' : '' }}">
+                            </div>
                         </div>
 
-                        <!-- Password field -->
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between">
-                                <label for="password" class="form-label">Password</label>
-                                <a href="#" class="text-decoration-none small">Forgot Password?</a>
-                            </div>
                             <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                    <i class="bi bi-lock"></i>
-                                </span>
-                                <input 
-                                    formControlName="password" class="form-control" placeholder="Enter your password">
-                                <button class="input-group-text bg-light" type="button">
-                                    <i class="bi"></i>
+                                <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-control"
+                                    [(ngModel)]="password" name="password"
+                                    placeholder="Enter your password">
+                                <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword">
+                                    <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
                                 </button>
                             </div>
-                          
                         </div>
 
-                        <!-- Remember me checkbox -->
-                        <div class="mb-4 form-check">
-                            <input type="checkbox" class="form-check-input" id="rememberMe"
-                                formControlName="rememberMe">
-                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        <!-- Confirm password for registration -->
+                        <div class="mb-3" *ngIf="!isLogin">
+                            <div class="input-group">
+                                <input type="password" id="confirmPassword" class="form-control"
+                                    [(ngModel)]="confirmPassword" name="confirmPassword"
+                                    placeholder="Confirm password">
+                            </div>
                         </div>
 
-                        <!-- Submit button -->
+                        <!-- Remember me & Forgot Password - only for login -->
+                        <div class="mb-4 form-check d-flex justify-content-between" *ngIf="isLogin">
+                            <div>
+                                <input type="checkbox" class="form-check-input" id="rememberMe"
+                                    [(ngModel)]="rememberMe" name="rememberMe">
+                                <label class="custom-blueviolet text-muted form-check-label" for="rememberMe">Remember
+                                    me</label>
+                            </div>
+                            <a href="#" class="custom-blueviolet text-decoration-none m-0 p-0 small">Forgot
+                                Password?</a>
+                        </div>
+
+                        <!-- Terms & conditions for registration -->
+                        <div class="mb-4 form-check" *ngIf="!isLogin">
+                            <input type="checkbox" class="form-check-input" id="termsAgreed"
+                                [(ngModel)]="termsAgreed" name="termsAgreed">
+                            <label class="text-muted form-check-label" for="termsAgreed">
+                                I agree to the <a href="#" class="custom-blueviolet text-decoration-none">Terms of Service</a> and <a href="#" class="custom-blueviolet text-decoration-none">Privacy Policy</a>
+                            </label>
+                        </div>
+
                         <div class="d-grid mb-4">
-                            <button type="submit" class="btn btn-primary py-2"
-                               >
+                            <button type="submit" class="text-white custom-bg-blueviolet py-2 border-0 rounded">
                                 <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"
                                     aria-hidden="true"></span>
-                                Sign In
+                                {{ isLogin ? 'Log in' : 'Register' }}
                             </button>
                         </div>
 
-                        <!-- Social login options -->
                         <div class="text-center mb-3">
                             <p class="text-muted mb-2 small">Or continue with</p>
                             <div class="d-flex justify-content-center gap-2">
@@ -85,9 +115,14 @@
                             </div>
                         </div>
 
-                        <!-- Sign up link -->
-                        <div class="text-center">
-                            <p class="mb-0">Don't have an account? <a href="#" class="text-decoration-none">Sign up</a>
+                        <div class="text-center d-flex flex-column">
+                            <p class="text-muted mb-0" *ngIf="isLogin">
+                                Don't have an account? 
+                                <a href="#" class="text-decoration-none custom-blueviolet" (click)="switchtoRegister(); $event.preventDefault()">Register</a>
+                            </p>
+                            <p class="text-muted mb-0" *ngIf="!isLogin">
+                                Already have an account?  
+                                <a href="#" class="text-decoration-none custom-blueviolet" (click)="switchToLogin(); $event.preventDefault()">Log in</a>
                             </p>
                         </div>
                     </form>

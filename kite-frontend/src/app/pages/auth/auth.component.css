@@ -1,0 +1,11 @@
+.auth button {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
+}
+
+.auth button[type="submit"] {
+    transition: 0.2s ease-in-out;
+}
+
+.auth button[type="submit"]:hover {
+    background-color: #4933a0;
+}
