@@ -14,7 +14,7 @@ export interface Message {
     status: 'read' | 'delivered' | 'sent';
 }
 
-export interface Conversation {
+interface Conversation {
     id: string;
     participants: User[];
     messages: Message[];
@@ -24,7 +24,7 @@ export interface ConversationResponse {
     conversations: Conversation[];
 }
 
-export interface Friend {
+interface Friend {
     id: number;
     name: string;
     status: 'online' | 'offline' | 'away' | 'busy';
@@ -37,4 +37,20 @@ export interface Friend {
 
 export interface FriendsResponse {
     friends: Friend[];
+}
+
+interface Contact {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+    username: string;
+    profilePicture: string;
+    status: string;
+    lastSeen: string;
+}
+
+export interface ContactsResponse {
+    contacts: Contact[];
 }

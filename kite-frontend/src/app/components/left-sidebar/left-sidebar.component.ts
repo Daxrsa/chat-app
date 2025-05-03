@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Friend, FriendsResponse } from '../../intefaces';
+import { FriendsResponse } from '../../intefaces';
 import { FriendsService } from '../../services/friends.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-left-sidebar',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './left-sidebar.component.html',
   styleUrl: './left-sidebar.component.css'
 })

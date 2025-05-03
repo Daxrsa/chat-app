@@ -1,0 +1,114 @@
+{
+  "contacts": [
+    {
+      "id": 1,
+      "firstName": "Emma",
+      "lastName": "Wilson",
+      "phone": "+1-555-123-4567",
+      "email": "emma.wilson@example.com",
+      "username": "emmaw",
+      "profilePicture": "assets/profile-pictures/emma.jpg",
+      "status": "online",
+      "lastSeen": "2023-04-30T08:30:00Z"
+    },
+    {
+      "id": 2,
+      "firstName": "Liam",
+      "lastName": "Johnson",
+      "phone": "+1-555-234-5678",
+      "email": "liam.johnson@example.com",
+      "username": "liamj",
+      "profilePicture": "assets/profile-pictures/liam.jpg",
+      "status": "offline",
+      "lastSeen": "2023-04-29T18:45:00Z"
+    },
+    {
+      "id": 3,
+      "firstName": "Sophia",
+      "lastName": "Martinez",
+      "phone": "+1-555-345-6789",
+      "email": "sophia.m@example.com",
+      "username": "sophiam",
+      "profilePicture": "assets/profile-pictures/sophia.jpg",
+      "status": "busy",
+      "lastSeen": "2023-04-30T09:15:00Z"
+    },
+    {
+      "id": 4,
+      "firstName": "Noah",
+      "lastName": "Taylor",
+      "phone": "+1-555-456-7890",
+      "email": "noah.taylor@example.com",
+      "username": "noaht",
+      "profilePicture": "assets/profile-pictures/noah.jpg",
+      "status": "online",
+      "lastSeen": "2023-04-30T10:05:00Z"
+    },
+    {
+      "id": 5,
+      "firstName": "Olivia",
+      "lastName": "Brown",
+      "phone": "+1-555-567-8901",
+      "email": "olivia.brown@example.com",
+      "username": "oliviab",
+      "profilePicture": "assets/profile-pictures/olivia.jpg",
+      "status": "away",
+      "lastSeen": "2023-04-30T07:30:00Z"
+    },
+    {
+      "id": 6,
+      "firstName": "Jackson",
+      "lastName": "Davis",
+      "phone": "+1-555-678-9012",
+      "email": "jackson.d@example.com",
+      "username": "jacksond",
+      "profilePicture": "assets/profile-pictures/jackson.jpg",
+      "status": "online",
+      "lastSeen": "2023-04-30T09:45:00Z"
+    },
+    {
+      "id": 7,
+      "firstName": "Ava",
+      "lastName": "Miller",
+      "phone": "+1-555-789-0123",
+      "email": "ava.miller@example.com",
+      "username": "avam",
+      "profilePicture": "assets/profile-pictures/ava.jpg",
+      "status": "offline",
+      "lastSeen": "2023-04-29T21:20:00Z"
+    },
+    {
+      "id": 8,
+      "firstName": "Lucas",
+      "lastName": "Garcia",
+      "phone": "+1-555-890-1234",
+      "email": "lucas.g@example.com",
+      "username": "lucasg",
+      "profilePicture": "assets/profile-pictures/lucas.jpg",
+      "status": "online",
+      "lastSeen": "2023-04-30T10:30:00Z"
+    },
+    {
+      "id": 9,
+      "firstName": "Isabella",
+      "lastName": "Rodriguez",
+      "phone": "+1-555-901-2345",
+      "email": "isabella.r@example.com",
+      "username": "isabellar",
+      "profilePicture": "assets/profile-pictures/isabella.jpg",
+      "status": "busy",
+      "lastSeen": "2023-04-30T08:50:00Z"
+    },
+    {
+      "id": 10,
+      "firstName": "Ethan",
+      "lastName": "Lee",
+      "phone": "+1-555-012-3456",
+      "email": "ethan.lee@example.com",
+      "username": "ethanl",
+      "profilePicture": "assets/profile-pictures/ethan.jpg",
+      "status": "online",
+      "lastSeen": "2023-04-30T10:15:00Z"
+    }
+  ]
+}

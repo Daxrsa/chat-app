@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Conversation } from '../intefaces';
 import { HttpClient } from '@angular/common/http';
+import { ConversationResponse } from '../intefaces';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ export class MessagesService {
 
   constructor(private http: HttpClient) { }
 
-  getMessages(): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(this.messagesUrl);
+  getMessages(): Observable<ConversationResponse[]> {
+    return this.http.get<ConversationResponse[]>(this.messagesUrl);
   }
 }

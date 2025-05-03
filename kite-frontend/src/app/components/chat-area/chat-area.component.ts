@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { Conversation } from '../../intefaces';
 import { MessagesService } from '../../services/messages.service';
 import { CommonModule } from '@angular/common';
+import { ConversationResponse } from '../../intefaces';
 
 @Component({
   selector: 'app-chat-area',
@@ -13,7 +13,7 @@ export class ChatAreaComponent {
   @ViewChild('messageInput') messageInputElement!: ElementRef;
   @ViewChild('send_msg') textareaRef!: ElementRef<HTMLTextAreaElement>;
 
-  conversations: Conversation[] = [];
+  conversations: ConversationResponse[] = [];
 
   constructor(
     private messageService: MessagesService
@@ -21,7 +21,7 @@ export class ChatAreaComponent {
 
   ngOnInit(): void {
     this.messageService.getMessages().subscribe({
-      next: (data: Conversation[]) => {
+      next: (data: ConversationResponse[]) => {
         this.conversations = data;
         console.log('Conversations received:', this.conversations);
       },
