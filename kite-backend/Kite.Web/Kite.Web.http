@@ -1,0 +1,6 @@
+@Kite.Web_HostAddress = http://localhost:5019
+
+GET {{Kite.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

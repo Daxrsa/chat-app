@@ -1,0 +1,16 @@
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/bin/Debug/net8.0/Kite.Application.deps.json
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/bin/Debug/net8.0/Kite.Application.dll
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/bin/Debug/net8.0/Kite.Application.pdb
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/bin/Debug/net8.0/Kite.Domain.dll
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/bin/Debug/net8.0/Kite.Domain.pdb
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.csproj.AssemblyReference.cache
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.AssemblyInfoInputs.cache
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.AssemblyInfo.cs
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.csproj.CoreCompileInputs.cache
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.sourcelink.json
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.csproj.CopyComplete
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.dll
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/refint/Kite.Application.dll
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/Kite.Application.pdb
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Application/obj/Debug/net8.0/ref/Kite.Application.dll

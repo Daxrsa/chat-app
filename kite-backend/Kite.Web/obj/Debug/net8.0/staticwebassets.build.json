@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "f9Y9me4PEqetXUpaHGtZ8nCZBec0EpL4rFQ8qGj8mq8=",
+  "Source": "Kite.Web",
+  "BasePath": "_content/Kite.Web",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
