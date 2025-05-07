@@ -134,3 +134,5 @@
 /home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Web/bin/Debug/net8.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll
 /home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Web/bin/Debug/net8.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll
 /home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Web/bin/Debug/net8.0/runtimes/win/lib/net8.0/System.Security.Cryptography.Pkcs.dll
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Web/bin/Debug/net8.0/AutoMapper.dll
+/home/daorsa/Documents/Software/Github/chat-app/kite-backend/Kite.Web/bin/Debug/net8.0/AutoMapper.Extensions.Microsoft.DependencyInjection.dll

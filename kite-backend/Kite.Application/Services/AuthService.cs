@@ -45,6 +45,12 @@ public class AuthService : IAuthService
 
     public async Task<Result<string>> RegisterAsync(RegisterModel request)
     {
+        // Check for null or empty values in request
+        if (string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+        {
+            return Result<string>.Failure("Username, email, and password are required.");
+        }
+
         var user = new ApplicationUser
         {
             FirstName = request.FirstName,
@@ -54,13 +60,25 @@ public class AuthService : IAuthService
             PhoneNumber = request.PhoneNumber
         };
 
-        var result = await _userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
+        try
         {
-            return Result<string>.Failure(string.Join("; ", result.Errors));
-        }
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded)
+            {
+                // Log errors or return detailed errors
+                var errors = string.Join("; ", result.Errors.Select(e => $"{e.Code}: {e.Description}"));
+                Console.WriteLine($"User creation failed: {errors}"); // For debugging
+                return Result<string>.Failure(errors);
+            }
 
-        return Result<string>.Success("Registration successful.");
+            return Result<string>.Success("Registration successful.");
+        }
+        catch (Exception ex)
+        {
+            // Log the exception and return a friendly error
+            Console.WriteLine($"Exception during user creation: {ex}"); // For debugging
+            return Result<string>.Failure($"Exception: {ex.Message}");
+        }
     }
     
     public async Task<Result<bool>> DeleteUserByEmailAsync(string email)

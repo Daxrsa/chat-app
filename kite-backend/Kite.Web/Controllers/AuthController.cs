@@ -9,7 +9,6 @@ namespace Kite.Web.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-
     public AuthController(IAuthService authService)
     {
         _authService = authService;
@@ -27,7 +26,7 @@ public class AuthController : ControllerBase
         return Ok(await _authService.RegisterAsync(request));
     }
     
-    [HttpDelete("delete-user-by-email/{email}")]
+    [HttpDelete("delete-user-by-email")]
     public async Task<IActionResult> DeleteUser([FromQuery] string email)
     {
         return Ok(await _authService.DeleteUserByEmailAsync(email));
