@@ -610,6 +610,7 @@
         "dependencies": {
           "AutoMapper": "12.0.1",
           "Kite.Domain": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "8.0.15",
           "Microsoft.IdentityModel.Tokens": "8.9.0",
           "System.IdentityModel.Tokens.Jwt": "8.9.0"
         },

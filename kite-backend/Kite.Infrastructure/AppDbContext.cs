@@ -35,5 +35,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ApplicationUser>().Property(u => u.FirstName).HasMaxLength(20);
+        modelBuilder.Entity<ApplicationUser>().Property(u => u.LastName).HasMaxLength(20);
+        modelBuilder.HasDefaultSchema("kite");
     }
 }
