@@ -8,7 +8,7 @@ public class Result<T>
 
     public IReadOnlyList<Error> Errors => _errors.AsReadOnly();
 
-    private Result(bool isSuccess, T? value, IReadOnlyList<Error> errors)
+    public Result(bool isSuccess, T? value, IReadOnlyList<Error> errors)
     {
         IsSuccess = isSuccess;
         Value = value;

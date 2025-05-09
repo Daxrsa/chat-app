@@ -1,3 +1,5 @@
+using Kite.Application.Interfaces;
+using Kite.Application.Services;
 using Kite.Domain.Entities;
 using Kite.Domain.Interfaces;
 using Kite.Infrastructure;
@@ -24,8 +26,32 @@ builder.Services.AddIdentityCore<ApplicationUser>()
     .AddApiEndpoints();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
+// try
+// {
+//     var logger = services.GetRequiredService<ILogger<Program>>();
+//     logger.LogInformation("Starting database migration and data seeding.");
+//
+//     var context = services.GetRequiredService<AppDbContext>();
+//     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+//
+//     await context.Database.MigrateAsync();
+//     logger.LogInformation("Database migration completed.");
+//
+//     await DataSeeder.SeedData(userManager);
+//     logger.LogInformation("Data seeding completed.");
+// }
+// catch (Exception ex)
+// {
+//     var logger = services.GetRequiredService<ILogger<Program>>();
+//     logger.LogError(ex, "An error occurred during migration");
+// }
 
 app.UseHttpsRedirection();
 
