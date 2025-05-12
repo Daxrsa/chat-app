@@ -6,8 +6,9 @@ namespace Kite.Infrastructure;
 
 public static class DataSeeder
 {
-    public static async Task SeedData(UserManager<ApplicationUser> userManager)
+    public static async Task SeedData(UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager)
     {
-        await SeedUsers.SeedUserData(userManager);
+        await SeedUsers.SeedUserData(userManager, roleManager);
     }
 }

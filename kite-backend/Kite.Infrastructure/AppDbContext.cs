@@ -33,10 +33,25 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.HasDefaultSchema("kite");
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         modelBuilder.Entity<ApplicationUser>().Property(u => u.FirstName).HasMaxLength(20);
         modelBuilder.Entity<ApplicationUser>().Property(u => u.LastName).HasMaxLength(20);
-        modelBuilder.HasDefaultSchema("kite");
+        
+        modelBuilder.Entity<Friendship>(entity =>
+        {
+            entity.HasKey(f => new { f.UserIdOne, f.UserIdTwo });
+            
+            entity.HasOne(f => f.UserOne)
+                .WithMany(u => u.FriendshipsInitiated)
+                .HasForeignKey(f => f.UserIdOne)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasOne(f => f.UserTwo)
+                .WithMany(u => u.FriendshipsReceived)
+                .HasForeignKey(f => f.UserIdTwo)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

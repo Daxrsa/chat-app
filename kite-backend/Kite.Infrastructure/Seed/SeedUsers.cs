@@ -7,8 +7,12 @@ namespace Kite.Infrastructure.Seed;
 public static class SeedUsers
 {
     private const string SeedUsersPassword = "P@ssword123";
-    public static async Task SeedUserData(UserManager<ApplicationUser> userManager)
+
+    public static async Task SeedUserData(UserManager<ApplicationUser> userManager,
+        RoleManager<IdentityRole> roleManager)
     {
+        await EnsureRolesExist(roleManager, new[] { "Admin", "User" });
+
         if (await userManager.Users.AnyAsync()) return;
 
         var userDaorsa = new ApplicationUser
@@ -51,15 +55,28 @@ public static class SeedUsers
             LastName = "doe"
         };
 
-        await SeedUser(userManager, userDaorsa, SeedUsersPassword);
-        await SeedUser(userManager, userMaverick, SeedUsersPassword);
-        await SeedUser(userManager, userJohn, SeedUsersPassword);
-        await SeedUser(userManager, userBob, SeedUsersPassword);
-        await SeedUser(userManager, userJane, SeedUsersPassword);
+        await SeedUser(userManager, userDaorsa, SeedUsersPassword, "Admin");
+        await SeedUser(userManager, userMaverick, SeedUsersPassword, "User");
+        await SeedUser(userManager, userJohn, SeedUsersPassword, "User");
+        await SeedUser(userManager, userBob, SeedUsersPassword, "User");
+        await SeedUser(userManager, userJane, SeedUsersPassword, "User");
+    }
+
+    private static async Task EnsureRolesExist(RoleManager<IdentityRole> roleManager,
+        string[] requiredRoles)
+    {
+        foreach (var role in requiredRoles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                throw new InvalidOperationException(
+                    $"Required role '{role}' does not exist. Please ensure roles are created before seeding users.");
+            }
+        }
     }
 
     private static async Task SeedUser(UserManager<ApplicationUser> userManager,
-        ApplicationUser user, string password)
+        ApplicationUser user, string password, string role)
     {
         var existingUser = await userManager.FindByEmailAsync(user.Email);
         if (existingUser == null)
@@ -69,6 +86,13 @@ public static class SeedUsers
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 throw new Exception($"Failed to seed user {user.Email}: {errors}");
+            }
+
+            var roleResult = await userManager.AddToRoleAsync(user, role);
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                throw new Exception($"Failed to assign role {role} to user {user.Email}: {errors}");
             }
         }
     }
