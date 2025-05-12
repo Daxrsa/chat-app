@@ -32,10 +32,4 @@ public class AuthController : ControllerBase
     {
         return Ok(await _authService.LogoutAsync());
     }
-    
-    [HttpDelete("delete-user-by-email")]
-    public async Task<IActionResult> DeleteUserByEmail(string email)
-    {
-        return Ok(await _authService.DeleteUserByEmail(email));
-    }
 }

@@ -1,3 +1,5 @@
+using Kite.Domain.Enums;
+
 namespace Kite.Application.Models;
 
 public class RegisterModel

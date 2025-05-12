@@ -8,6 +8,7 @@ using Kite.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using ApplicationBuilderExtensions = Kite.Web.Extensions.ApplicationBuilderExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +70,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserAccessor, UserAccessor>();
+builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+
+builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
 
 var app = builder.Build();
 

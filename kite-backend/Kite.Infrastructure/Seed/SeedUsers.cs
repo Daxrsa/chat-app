@@ -1,3 +1,4 @@
+using Kite.Domain.Common;
 using Kite.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -55,11 +56,11 @@ public static class SeedUsers
             LastName = "doe"
         };
 
-        await SeedUser(userManager, userDaorsa, SeedUsersPassword, "Admin");
-        await SeedUser(userManager, userMaverick, SeedUsersPassword, "User");
-        await SeedUser(userManager, userJohn, SeedUsersPassword, "User");
-        await SeedUser(userManager, userBob, SeedUsersPassword, "User");
-        await SeedUser(userManager, userJane, SeedUsersPassword, "User");
+        await SeedUser(userManager, userDaorsa, SeedUsersPassword, Role.Admin);
+        await SeedUser(userManager, userMaverick, SeedUsersPassword, Role.User);
+        await SeedUser(userManager, userJohn, SeedUsersPassword, Role.User);
+        await SeedUser(userManager, userBob, SeedUsersPassword, Role.User);
+        await SeedUser(userManager, userJane, SeedUsersPassword, Role.User);
     }
 
     private static async Task EnsureRolesExist(RoleManager<IdentityRole> roleManager,

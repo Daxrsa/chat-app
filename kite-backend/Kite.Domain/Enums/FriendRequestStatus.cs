@@ -1,8 +1,9 @@
 namespace Kite.Domain.Enums;
 
-public enum FriendshipStatus
+public enum FriendRequestStatus
 {
     Pending,
     Accepted,
-    Rejected
+    Rejected,
+    Withdrawn
 }

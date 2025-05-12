@@ -2,8 +2,11 @@ namespace Kite.Domain.Common;
 
 public static class UserErrors
 {
-    public static Error NotFound(string email) =>
-        new Error("Users.NotFound", $"User with email {email} was not found.");
+    public static Error NotFound =>
+        new Error("Users.NotFound", "User not found.");
+    
+    public static Error EmailNotFound(string email) =>
+        new Error("Users.NotFound", $"User with email {email} not found.");
 
     public static Error NoChangesDetected =>
         new Error("Users.NoChanges", "No changes were detected during the operation.");
@@ -40,4 +43,7 @@ public static class UserErrors
 
     public static Error UnverifiedEmail => new Error("Users.UnverifiedEmail",
         "Email address is not verified.");
+    
+    public static Error NoPrincipal => new Error("Authentication.NoPrincipal",
+        "No authenticated user found.");
 }

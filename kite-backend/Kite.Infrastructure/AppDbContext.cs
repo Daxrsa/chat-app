@@ -41,16 +41,16 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         
         modelBuilder.Entity<Friendship>(entity =>
         {
-            entity.HasKey(f => new { f.UserIdOne, f.UserIdTwo });
+            entity.HasKey(f => new { f.SenderId, f.ReceiverId });
             
             entity.HasOne(f => f.UserOne)
                 .WithMany(u => u.FriendshipsInitiated)
-                .HasForeignKey(f => f.UserIdOne)
+                .HasForeignKey(f => f.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
             
             entity.HasOne(f => f.UserTwo)
                 .WithMany(u => u.FriendshipsReceived)
-                .HasForeignKey(f => f.UserIdTwo)
+                .HasForeignKey(f => f.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
