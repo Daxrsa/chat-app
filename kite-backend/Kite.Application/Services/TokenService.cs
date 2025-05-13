@@ -9,21 +9,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Kite.Application.Services;
 
-public class TokenService : ITokenService
+public class TokenService(
+    UserManager<ApplicationUser> userManager,
+    IConfiguration configuration) : ITokenService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _configuration;
-
-    public TokenService(
-        UserManager<ApplicationUser> userManager, IConfiguration configuration)
-    {
-        _userManager = userManager;
-        _configuration = configuration;
-    }
-
     public async Task<string> GenerateJwtTokenAsync(ApplicationUser user)
     {
-        var userRoles = await _userManager.GetRolesAsync(user);
+        var userRoles = await userManager.GetRolesAsync(user);
 
         var claims = new List<Claim>
         {
@@ -41,13 +33,13 @@ public class TokenService : ITokenService
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["JWT:ExpireHours"]));
+        var expires = DateTime.UtcNow.AddHours(Convert.ToDouble(configuration["JWT:ExpireHours"]));
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["JWT:ValidIssuer"],
-            audience: _configuration["JWT:ValidAudience"],
+            issuer: configuration["JWT:ValidIssuer"],
+            audience: configuration["JWT:ValidAudience"],
             claims: claims,
             notBefore: DateTime.UtcNow,
             expires: expires,

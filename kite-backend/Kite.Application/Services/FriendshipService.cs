@@ -8,28 +8,16 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Kite.Application.Services;
 
-public class FriendshipService : IFriendshipService
+public class FriendshipService(
+    IUserAccessor userAccessor,
+    UserManager<ApplicationUser> userManager,
+    IFriendshipRepository friendshipRepository,
+    IUnitOfWork unitOfWork,
+    IUserRepository userRepository) : IFriendshipService
 {
-    private readonly IUserAccessor _userAccessor;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IFriendshipRepository _friendshipRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public FriendshipService(IUserAccessor userAccessor, UserManager<ApplicationUser> userManager,
-        IFriendshipRepository friendshipRepository, IUnitOfWork unitOfWork,
-        IUserRepository userRepository)
-    {
-        _userAccessor = userAccessor;
-        _userManager = userManager;
-        _friendshipRepository = friendshipRepository;
-        _unitOfWork = unitOfWork;
-        _userRepository = userRepository;
-    }
-
     private async Task<string?> IdentifyCurrentUser()
     {
-        var currentUserResult = await _userAccessor.GetCurrentUserIdAsync();
+        var currentUserResult = await userAccessor.GetCurrentUserIdAsync();
         if (!currentUserResult.IsSuccess)
         {
             throw new UnauthorizedAccessException("Failed to identify the current user");
@@ -57,7 +45,7 @@ public class FriendshipService : IFriendshipService
                         "You cannot send a friend request to yourself"));
             }
 
-            var targetUser = await _userManager.FindByIdAsync(targetUserId);
+            var targetUser = await userManager.FindByIdAsync(targetUserId);
             if (targetUser == null)
             {
                 return Result<string>.Failure(
@@ -65,7 +53,7 @@ public class FriendshipService : IFriendshipService
             }
 
             var existingFriendship =
-                await _friendshipRepository.CheckIfFrienshipExists(currentUserId, targetUserId);
+                await friendshipRepository.CheckIfFrienshipExists(currentUserId, targetUserId);
             if (existingFriendship != null)
             {
                 if (existingFriendship.Status == FriendRequestStatus.Accepted)
@@ -99,7 +87,7 @@ public class FriendshipService : IFriendshipService
                     existingFriendship.Status = FriendRequestStatus.Pending;
                     existingFriendship.ResendRequestTime = DateTime.UtcNow;
 
-                    await _friendshipRepository.UpdateAsync(existingFriendship);
+                    await friendshipRepository.UpdateAsync(existingFriendship);
                     return Result<string>.Success("Friend request sent successfully");
                 }
             }
@@ -113,7 +101,9 @@ public class FriendshipService : IFriendshipService
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _friendshipRepository.InsertAsync(newFriendship);
+            await friendshipRepository.InsertAsync(newFriendship);
+            
+            await unitOfWork.SaveChangesAsync();
 
             // Optionally, send notification to target user
             // await _notificationService.SendFriendRequestNotificationAsync(targetUserId, currentUserId);
@@ -140,7 +130,7 @@ public class FriendshipService : IFriendshipService
                     new Error("FriendRequest.InvalidId", "Invalid friend request ID"));
             }
 
-            var friendship = await _friendshipRepository.GetByIdAsync(requestId);
+            var friendship = await friendshipRepository.GetByIdAsync(requestId);
             if (friendship == null)
             {
                 return Result<string>.Success("No existing friendship found");
@@ -162,10 +152,9 @@ public class FriendshipService : IFriendshipService
 
             friendship.Status = FriendRequestStatus.Accepted;
 
-            await _unitOfWork.SaveChangesAsync();
+            await friendshipRepository.UpdateAsync(friendship);
 
-            // Optionally, create notification for the sender
-            // await _notificationService.SendFriendRequestAcceptedNotificationAsync(friendship.SenderId, currentUserId);
+            await unitOfWork.SaveChangesAsync();
 
             return Result<string>.Success("Friend request accepted successfully");
         }
@@ -189,7 +178,7 @@ public class FriendshipService : IFriendshipService
                     new Error("FriendRequest.InvalidId", "Invalid friend request ID"));
             }
 
-            var friendship = await _friendshipRepository.GetByIdAsync(requestId);
+            var friendship = await friendshipRepository.GetByIdAsync(requestId);
             if (friendship == null)
             {
                 return Result<string>.Failure(
@@ -212,7 +201,9 @@ public class FriendshipService : IFriendshipService
 
             friendship.Status = FriendRequestStatus.Rejected;
 
-            await _friendshipRepository.UpdateAsync(friendship);
+            await friendshipRepository.UpdateAsync(friendship);
+
+            await unitOfWork.SaveChangesAsync();
 
             return Result<string>.Success("Friend request rejected successfully");
         }
@@ -236,7 +227,7 @@ public class FriendshipService : IFriendshipService
                     new Error("FriendRequest.InvalidId", "Invalid friend request ID"));
             }
 
-            var friendship = await _friendshipRepository.GetByIdAsync(requestId);
+            var friendship = await friendshipRepository.GetByIdAsync(requestId);
             if (friendship == null)
             {
                 return Result<string>.Failure(
@@ -259,7 +250,9 @@ public class FriendshipService : IFriendshipService
 
             friendship.Status = FriendRequestStatus.Withdrawn;
 
-            await _friendshipRepository.UpdateAsync(friendship);
+            await friendshipRepository.UpdateAsync(friendship);
+            
+            await unitOfWork.SaveChangesAsync();
 
             return Result<string>.Success("Friend request withdrawn successfully");
         }
@@ -278,13 +271,13 @@ public class FriendshipService : IFriendshipService
             var currentUserId = await IdentifyCurrentUser();
 
             var pendingRequests =
-                await _friendshipRepository.GetPendingReceivedRequestsAsync(currentUserId);
+                await friendshipRepository.GetPendingReceivedRequestsAsync(currentUserId);
 
             var requestModels = new List<FriendRequestModel>();
 
             foreach (var request in pendingRequests)
             {
-                var sender = await _userRepository.GetByIdAsync(request.SenderId);
+                var sender = await userRepository.GetByIdAsync(request.SenderId);
 
                 if (sender != null)
                 {
@@ -318,13 +311,13 @@ public class FriendshipService : IFriendshipService
             var currentUserId = await IdentifyCurrentUser();
 
             var pendingSentRequests =
-                await _friendshipRepository.GetPendingSentRequestsAsync(currentUserId);
+                await friendshipRepository.GetPendingSentRequestsAsync(currentUserId);
 
             var requestModels = new List<FriendRequestModel>();
 
             foreach (var request in pendingSentRequests)
             {
-                var receiver = await _userRepository.GetByIdAsync(request.ReceiverId);
+                var receiver = await userRepository.GetByIdAsync(request.ReceiverId);
 
                 if (receiver != null)
                 {
@@ -389,14 +382,14 @@ public class FriendshipService : IFriendshipService
             _ => "just now"
         };
     }
-    
+
     public async Task<Result<IEnumerable<UserModel>>> GetFriendsAsync()
     {
         try
         {
             var currentUserId = await IdentifyCurrentUser();
             var friendships =
-                await _friendshipRepository.GetAcceptedFriendshipsForUserAsync(currentUserId);
+                await friendshipRepository.GetAcceptedFriendshipsForUserAsync(currentUserId);
 
             var friendUserIds = new HashSet<string>();
             foreach (var friendship in friendships)
@@ -414,7 +407,7 @@ public class FriendshipService : IFriendshipService
             var friendModels = new List<UserModel>();
             foreach (var friendId in friendUserIds)
             {
-                var friendUser = await _userRepository.GetByIdAsync(friendId);
+                var friendUser = await userRepository.GetByIdAsync(friendId);
                 if (friendUser != null)
                 {
                     friendModels.Add(new UserModel

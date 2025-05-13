@@ -3,24 +3,14 @@ using Kite.Application.Models;
 using Kite.Domain.Common;
 using Kite.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+
 namespace Kite.Application.Services;
 
-public class AuthService : IAuthService
+public class AuthService(
+    UserManager<ApplicationUser> userManager,
+    SignInManager<ApplicationUser> signInManager,
+    ITokenService tokenService) : IAuthService
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ITokenService _tokenService;
-    
-    public AuthService(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        ITokenService tokenService)
-    {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _tokenService = tokenService;
-    }
-
     public async Task<Result<UserModel>> RegisterAsync(RegisterModel model)
     {
         try
@@ -30,8 +20,8 @@ public class AuthService : IAuthService
                 return Result<UserModel>.Failure(new Error("Registration.NullModel",
                     "Registration model cannot be null"));
             }
-            
-            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+
+            var existingUser = await userManager.FindByEmailAsync(model.Email);
             if (existingUser != null)
             {
                 return Result<UserModel>.Failure(new Error("Registration.DuplicateEmail",
@@ -46,16 +36,16 @@ public class AuthService : IAuthService
                 LastName = model.LastName,
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => new Error(e.Code, e.Description)).ToArray();
                 return Result<UserModel>.Failure(errors);
             }
-            
-            await _userManager.AddToRoleAsync(user, Role.User);
-            var roles = await _userManager.GetRolesAsync(user);
+
+            await userManager.AddToRoleAsync(user, Role.User);
+            var roles = await userManager.GetRolesAsync(user);
             var userModel = new UserModel
             {
                 Id = user.Id,
@@ -72,7 +62,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
-            return Result<UserModel>.Failure(new Error("Registration.Exception", 
+            return Result<UserModel>.Failure(new Error("Registration.Exception",
                 $"An error occurred during registration: {ex.Message}"));
         }
     }
@@ -87,24 +77,24 @@ public class AuthService : IAuthService
                     "Login model cannot be null"));
             }
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 return Result<UserModel>.Failure(new Error("Login.InvalidCredentials",
                     "Invalid email or password"));
             }
 
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password,
+            var result = await signInManager.PasswordSignInAsync(user.UserName, model.Password,
                 model.RememberMe, false);
 
             if (!result.Succeeded)
             {
                 return Result<UserModel>.Failure(UserErrors.IncorrectEmailOrPassword);
             }
-            
-            var token = await _tokenService.GenerateJwtTokenAsync(user);
-            var roles = await _userManager.GetRolesAsync(user);
-            
+
+            var token = await tokenService.GenerateJwtTokenAsync(user);
+            var roles = await userManager.GetRolesAsync(user);
+
             var userModel = new UserModel
             {
                 Id = user.Id,
@@ -122,7 +112,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
-            return Result<UserModel>.Failure(new Error("Login.Exception", 
+            return Result<UserModel>.Failure(new Error("Login.Exception",
                 $"An error occurred during login: {ex.Message}"));
         }
     }
@@ -131,12 +121,12 @@ public class AuthService : IAuthService
     {
         try
         {
-            await _signInManager.SignOutAsync();
+            await signInManager.SignOutAsync();
             return Result<bool>.Success(true);
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure(new Error("Logout.Exception", 
+            return Result<bool>.Failure(new Error("Logout.Exception",
                 $"An error occurred during logout: {ex.Message}"));
         }
     }
@@ -151,13 +141,13 @@ public class AuthService : IAuthService
                     "Email cannot be null or empty"));
             }
 
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 return Result<string>.Failure(UserErrors.EmailNotFound(email));
             }
 
-            var result = await _userManager.DeleteAsync(user);
+            var result = await userManager.DeleteAsync(user);
 
             if (!result.Succeeded)
             {
@@ -169,7 +159,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
-            return Result<string>.Failure(new Error("DeleteUser.Exception", 
+            return Result<string>.Failure(new Error("DeleteUser.Exception",
                 $"An error occurred while deleting user: {ex.Message}"));
         }
     }

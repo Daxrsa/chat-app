@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Kite.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d4740d741cfb1e11110af3ded5a49143c5cbc223")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2f119d3835d1b13ea1c35b47904ccfaa449c31a3")]
 [assembly: System.Reflection.AssemblyProductAttribute("Kite.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Kite.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -5,6 +5,7 @@ public class Result<T>
     private readonly List<Error> _errors = new();
     public bool IsSuccess { get; }
     public T? Value { get; }
+    public int Code { get; set; }
 
     public IReadOnlyList<Error> Errors => _errors.AsReadOnly();
 

@@ -7,29 +7,17 @@ namespace Kite.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService authService) : BaseApiController
 {
-    private readonly IAuthService _authService;
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-    
     [HttpPost("register-user")]
     public async Task<IActionResult> Register(RegisterModel model)
-    {
-        return Ok(await _authService.RegisterAsync(model));
-    }
-    
+        => HandleResult(await authService.RegisterAsync(model));
+
     [HttpPost("login-user")]
     public async Task<IActionResult> Login(LoginModel model)
-    {
-        return Ok(await _authService.LoginAsync(model));
-    }
+        => HandleResult(await authService.LoginAsync(model));
     
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
-    {
-        return Ok(await _authService.LogoutAsync());
-    }
+        => HandleResult(await authService.LogoutAsync());
 }
