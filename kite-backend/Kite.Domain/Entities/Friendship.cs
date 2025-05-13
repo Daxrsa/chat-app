@@ -11,7 +11,6 @@ public class Friendship : IEntity<Guid>
     public ApplicationUser UserOne { get; set; }
     public ApplicationUser UserTwo { get; set; }
     public FriendRequestStatus Status { get; set; }
-    public DateTime RequestSentTime { get; set; }
-    public DateTime RequestReceivedTime { get; set; }
+    public DateTime CreatedAt { get; set; }
     public DateTime ResendRequestTime { get; set; }
 }

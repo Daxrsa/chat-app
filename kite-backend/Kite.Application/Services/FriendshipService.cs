@@ -27,6 +27,17 @@ public class FriendshipService : IFriendshipService
         _userRepository = userRepository;
     }
 
+    private async Task<string?> IdentifyCurrentUser()
+    {
+        var currentUserResult = await _userAccessor.GetCurrentUserIdAsync();
+        if (!currentUserResult.IsSuccess)
+        {
+            throw new UnauthorizedAccessException("Failed to identify the current user");
+        }
+
+        return currentUserResult.Value;
+    }
+
     public async Task<Result<string>> SendFriendRequestAsync(string targetUserId)
     {
         try
@@ -99,7 +110,7 @@ public class FriendshipService : IFriendshipService
                 SenderId = currentUserId,
                 ReceiverId = targetUserId,
                 Status = FriendRequestStatus.Pending,
-                RequestSentTime = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
 
             await _friendshipRepository.InsertAsync(newFriendship);
@@ -325,10 +336,9 @@ public class FriendshipService : IFriendshipService
                         ReceiverLastName = receiver.LastName,
                         ReceiverUsername = receiver.UserName,
                         ReceiverImageUrl = receiver.ImageUrl,
-                        SentAt = request.CreatedAt,
+                        CreatedAt = request.CreatedAt,
                         Status = request.Status,
-                        // Add time elapsed since request was sent
-                        TimeElapsed = GetTimeElapsedString(request.CreatedAt, DateTime.UtcNow)
+                        TimeElapsed = GetTimeElapsedString(request.CreatedAt)
                     });
                 }
             }
@@ -343,19 +353,88 @@ public class FriendshipService : IFriendshipService
         }
     }
 
+    private static string GetTimeElapsedString(DateTime requestTime)
+    {
+        var currentTime = DateTime.UtcNow;
+        var timeSpan = currentTime - requestTime;
+
+        return timeSpan switch
+        {
+            var ts when ts.TotalDays > 365 =>
+                (int)(ts.TotalDays / 365) == 1
+                    ? "1 year ago"
+                    : $"{(int)(ts.TotalDays / 365)} years ago",
+
+            var ts when ts.TotalDays > 30 =>
+                (int)(ts.TotalDays / 30) == 1
+                    ? "1 month ago"
+                    : $"{(int)(ts.TotalDays / 30)} months ago",
+
+            var ts when ts.TotalDays > 7 =>
+                (int)(ts.TotalDays / 7) == 1
+                    ? "1 week ago"
+                    : $"{(int)(ts.TotalDays / 7)} weeks ago",
+
+            var ts when ts.TotalDays >= 1 =>
+                (int)ts.TotalDays == 1 ? "yesterday" : $"{(int)ts.TotalDays} days ago",
+
+            var ts when ts.TotalHours >= 1 =>
+                (int)ts.TotalHours == 1 ? "an hour ago" : $"{(int)ts.TotalHours} hours ago",
+
+            var ts when ts.TotalMinutes >= 1 =>
+                (int)ts.TotalMinutes == 1 ? "a minute ago" : $"{(int)ts.TotalMinutes} minutes ago",
+
+            var ts when ts.TotalSeconds >= 30 => "less than a minute ago",
+
+            _ => "just now"
+        };
+    }
+    
     public async Task<Result<IEnumerable<UserModel>>> GetFriendsAsync()
     {
-        throw new NotImplementedException();
-    }
-
-    private async Task<string?> IdentifyCurrentUser()
-    {
-        var currentUserResult = await _userAccessor.GetCurrentUserIdAsync();
-        if (!currentUserResult.IsSuccess)
+        try
         {
-            throw new UnauthorizedAccessException("Failed to identify the current user");
-        }
+            var currentUserId = await IdentifyCurrentUser();
+            var friendships =
+                await _friendshipRepository.GetAcceptedFriendshipsForUserAsync(currentUserId);
 
-        return currentUserResult.Value;
+            var friendUserIds = new HashSet<string>();
+            foreach (var friendship in friendships)
+            {
+                if (friendship.SenderId == currentUserId)
+                {
+                    friendUserIds.Add(friendship.ReceiverId);
+                }
+                else if (friendship.ReceiverId == currentUserId)
+                {
+                    friendUserIds.Add(friendship.SenderId);
+                }
+            }
+
+            var friendModels = new List<UserModel>();
+            foreach (var friendId in friendUserIds)
+            {
+                var friendUser = await _userRepository.GetByIdAsync(friendId);
+                if (friendUser != null)
+                {
+                    friendModels.Add(new UserModel
+                    {
+                        Id = friendUser.Id,
+                        UserName = friendUser.UserName,
+                        FirstName = friendUser.FirstName,
+                        LastName = friendUser.LastName,
+                        Email = friendUser.Email,
+                        ImageUrl = friendUser.ImageUrl,
+                    });
+                }
+            }
+
+            return Result<IEnumerable<UserModel>>.Success(friendModels);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<UserModel>>.Failure(
+                new Error("Friends.Exception", $"Failed to retrieve friends: {ex.Message}"));
+        }
     }
 }

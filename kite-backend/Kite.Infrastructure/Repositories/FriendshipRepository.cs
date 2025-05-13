@@ -27,7 +27,7 @@ public class FriendshipRepository : GenericRepository<Friendship, Guid>, IFriend
     {
         return await _dbSet
             .Where(f => f.ReceiverId == userId && f.Status == FriendRequestStatus.Pending)
-            .OrderByDescending(f => f.RequestReceivedTime)
+            .OrderByDescending(f => f.CreatedAt)
             .ToListAsync(cancellationToken);
     }
     
@@ -35,9 +35,15 @@ public class FriendshipRepository : GenericRepository<Friendship, Guid>, IFriend
     {
         return await _dbSet
             .Where(f => f.SenderId == userId && f.Status == FriendRequestStatus.Pending)
-            .OrderByDescending(f => f.RequestSentTime)
+            .OrderByDescending(f => f.CreatedAt)
             .ToListAsync(cancellationToken);
     }
-    //RequestReceivedTime and RequestSentTime should be fixed in service
     
+    public async Task<IEnumerable<Friendship>> GetAcceptedFriendshipsForUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(f => (f.SenderId == userId || f.ReceiverId == userId) 
+                        && f.Status == FriendRequestStatus.Accepted)
+            .ToListAsync(cancellationToken);
+    }
 }
