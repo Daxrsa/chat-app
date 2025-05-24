@@ -13,4 +13,8 @@ public class UserController(IUserAccessor userAccessor, IAuthService authService
     [HttpDelete("delete-user-by-email")]
     public async Task<IActionResult> DeleteUserByEmail(string email)
         => HandleResult(await authService.DeleteUserByEmail(email));
+    
+    [HttpGet("get-all-users")]
+    public async Task<IActionResult> GetAllUsersAsync()
+        => HandleResult(await userAccessor.GetAllUsersAsync());
 }

@@ -9,4 +9,5 @@ public interface IUserAccessor
 {
     Task<Result<UserModel>> GetCurrentUserAsync();
     Task<Result<string>> GetCurrentUserIdAsync();
+    Task<Result<List<UserModel>>> GetAllUsersAsync();
 }

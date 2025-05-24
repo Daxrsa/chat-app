@@ -15,7 +15,7 @@ public class FriendRequestModel
     public string ReceiverFirstName { get; set; }
     public string ReceiverLastName { get; set; }
     public string ReceiverImageUrl { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
     public string TimeElapsed { get; set; }
     public FriendRequestStatus Status { get; set; }
 }

@@ -3,10 +3,11 @@ using Kite.Domain.Common;
 
 namespace Kite.Application.Interfaces;
 
-public interface IFriendshipService
+public interface IFriendRequestService
 {
     Task<Result<string>> SendFriendRequestAsync(string targetUserId);
-    Task<Result<string>> AcceptFriendRequestAsync(Guid requestId);
+    Task<Result<string>> AcceptFriendRequestAsync(Guid requestId,
+        CancellationToken cancellationToken = default);
     Task<Result<string>> RejectFriendRequestAsync(Guid requestId);
     Task<Result<string>> WithdrawFriendRequestAsync(Guid requestId);
     Task<Result<IEnumerable<FriendRequestModel>>> GetPendingReceivedRequestsAsync();

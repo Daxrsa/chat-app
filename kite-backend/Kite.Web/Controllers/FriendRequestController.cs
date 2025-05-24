@@ -3,33 +3,33 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Kite.Web.Controllers;
 
-public class FriendshipController(IFriendshipService friendshipService) : BaseApiController
+public class FriendRequestController(IFriendRequestService friendRequestService) : BaseApiController
 {
-    [HttpPost("send-friend-request/{userId}")]
+    [HttpPost("send-friend-request")]
     public async Task<IActionResult> SendFriendRequest(string targetId)
-        => HandleResult(await friendshipService.SendFriendRequestAsync(targetId));
+        => HandleResult(await friendRequestService.SendFriendRequestAsync(targetId));
 
     [HttpPut("accept-friend-request/{requestId:guid}")]
     public async Task<IActionResult> AcceptFriendRequest(Guid requestId)
-        => HandleResult(await friendshipService.AcceptFriendRequestAsync(requestId));
+        => HandleResult(await friendRequestService.AcceptFriendRequestAsync(requestId));
 
     [HttpPut("reject-friend-request/{requestId:guid}")]
     public async Task<IActionResult> RejectFriendRequest(Guid requestId)
-        => HandleResult(await friendshipService.RejectFriendRequestAsync(requestId));
+        => HandleResult(await friendRequestService.RejectFriendRequestAsync(requestId));
 
     [HttpPut("withdraw-friend-request/{requestId:guid}")]
     public async Task<IActionResult> WithdrawFriendRequest(Guid requestId)
-        => HandleResult(await friendshipService.WithdrawFriendRequestAsync(requestId));
+        => HandleResult(await friendRequestService.WithdrawFriendRequestAsync(requestId));
 
     [HttpGet("get-received-friend-requests")]
     public async Task<IActionResult> GetPendingReceivedRequests()
-        => HandleResult(await friendshipService.GetPendingReceivedRequestsAsync());
+        => HandleResult(await friendRequestService.GetPendingReceivedRequestsAsync());
 
     [HttpGet("get-sent-friend-requests")]
     public async Task<IActionResult> GetPendingSentRequests()
-        => HandleResult(await friendshipService.GetPendingSentRequestsAsync());
+        => HandleResult(await friendRequestService.GetPendingSentRequestsAsync());
 
     [HttpGet("get-all-friends")]
     public async Task<IActionResult> GetFriends()
-        => HandleResult(await friendshipService.GetFriendsAsync());
+        => HandleResult(await friendRequestService.GetFriendsAsync());
 }

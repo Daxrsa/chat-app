@@ -10,40 +10,15 @@ public class FriendshipRepository : GenericRepository<Friendship, Guid>, IFriend
     public FriendshipRepository(AppDbContext context) : base(context)
     {
     }
-
-    public async Task<Friendship?> CheckIfFrienshipExists(
-        string userIdOne, 
-        string userIdTwo, 
+    
+    public async Task<Friendship?> CheckIfFrienshipExists(string userIdOne, string userIdTwo,
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .FirstOrDefaultAsync(f =>
-                    (f.SenderId == userIdOne && f.ReceiverId == userIdTwo) ||
-                    (f.SenderId == userIdTwo && f.ReceiverId == userIdOne),
-                cancellationToken);
-    }
-
-    public async Task<IEnumerable<Friendship?>> GetPendingReceivedRequestsAsync(string userId, CancellationToken cancellationToken = default)
-    {
-        return await _dbSet
-            .Where(f => f.ReceiverId == userId && f.Status == FriendRequestStatus.Pending)
-            .OrderByDescending(f => f.CreatedAt)
-            .ToListAsync(cancellationToken);
-    }
-    
-    public async Task<IEnumerable<Friendship?>> GetPendingSentRequestsAsync(string userId, CancellationToken cancellationToken = default)
-    {
-        return await _dbSet
-            .Where(f => f.SenderId == userId && f.Status == FriendRequestStatus.Pending)
-            .OrderByDescending(f => f.CreatedAt)
-            .ToListAsync(cancellationToken);
-    }
-    
-    public async Task<IEnumerable<Friendship>> GetAcceptedFriendshipsForUserAsync(string userId, CancellationToken cancellationToken = default)
-    {
-        return await _dbSet
-            .Where(f => (f.SenderId == userId || f.ReceiverId == userId) 
-                        && f.Status == FriendRequestStatus.Accepted)
-            .ToListAsync(cancellationToken);
+            .Include(f => f.FriendRequest)
+            .Where(f => f.FriendRequest.Status == FriendRequestStatus.Accepted)
+            .Where(f => (f.FriendRequest.SenderId == userIdOne && f.FriendRequest.ReceiverId == userIdTwo) ||
+                        (f.FriendRequest.SenderId == userIdTwo && f.FriendRequest.ReceiverId == userIdOne))
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

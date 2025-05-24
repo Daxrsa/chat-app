@@ -9,6 +9,7 @@ namespace Kite.Infrastructure;
 public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
     private readonly IConfiguration _configuration;
+
     public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration)
         : base(options)
     {
@@ -38,20 +39,45 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         modelBuilder.Entity<ApplicationUser>().Property(u => u.FirstName).HasMaxLength(20);
         modelBuilder.Entity<ApplicationUser>().Property(u => u.LastName).HasMaxLength(20);
-        
+
+        modelBuilder.Entity<ApplicationUser>(entity =>
+        {
+            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ImageUrl).HasMaxLength(2048);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+        });
+
+        modelBuilder.Entity<FriendRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnType("uuid").ValueGeneratedOnAdd();
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+            entity.Property(e => e.ResendRequestTime).HasColumnType("timestamptz");
+            entity.Property(e => e.Status).HasConversion<int>();
+
+            entity.HasOne(e => e.UserOne)
+                .WithMany(u => u.FriendRequests)
+                .HasForeignKey(e => e.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.UserTwo)
+                .WithMany()
+                .HasForeignKey(e => e.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(fr => fr.Friendship)
+                .WithOne(f => f.FriendRequest)
+                .HasForeignKey<Friendship>(f => f.FriendRequestId)
+                .IsRequired(false);
+        });
+
         modelBuilder.Entity<Friendship>(entity =>
         {
-            entity.HasKey(f => new { f.SenderId, f.ReceiverId });
-            
-            entity.HasOne(f => f.UserOne)
-                .WithMany(u => u.FriendshipsInitiated)
-                .HasForeignKey(f => f.SenderId)
-                .OnDelete(DeleteBehavior.Restrict);
-            
-            entity.HasOne(f => f.UserTwo)
-                .WithMany(u => u.FriendshipsReceived)
-                .HasForeignKey(f => f.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnType("uuid").ValueGeneratedOnAdd();
+            entity.Property(e => e.FriendRequestId).HasColumnType("uuid");
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
         });
     }
 }
