@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Kite.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+26a06058a2ee98022d74cb0288b49cbd37d6b78a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54caba1d6289c432f6f3b080b48f04e11446af4b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Kite.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Kite.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

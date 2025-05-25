@@ -28,8 +28,4 @@ public class FriendRequestController(IFriendRequestService friendRequestService)
     [HttpGet("get-sent-friend-requests")]
     public async Task<IActionResult> GetPendingSentRequests()
         => HandleResult(await friendRequestService.GetPendingSentRequestsAsync());
-
-    [HttpGet("get-all-friends")]
-    public async Task<IActionResult> GetFriends()
-        => HandleResult(await friendRequestService.GetFriendsAsync());
 }

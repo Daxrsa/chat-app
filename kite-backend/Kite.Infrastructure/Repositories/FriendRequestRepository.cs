@@ -34,4 +34,13 @@ public class FriendRequestRepository : GenericRepository<FriendRequest, Guid>, I
                         && f.Status == FriendRequestStatus.Accepted)
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<FriendRequest?> GetFriendRequestBetweenUsersAsync(string currentUserId, string targetUserId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(fr => 
+                (fr.SenderId == currentUserId && fr.ReceiverId == targetUserId) || 
+                (fr.SenderId == targetUserId && fr.ReceiverId == currentUserId))
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

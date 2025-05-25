@@ -16,5 +16,7 @@ public class FriendRequest : IEntity<Guid>
     public DateTimeOffset ResendRequestTime { get; set; } 
     [NotMapped]
     public DateTimeOffset CreatedAt { get; set; } 
+    [NotMapped]
+    public DateTimeOffset UpdatedAt { get; set; } 
     public Friendship? Friendship { get; set; }
 }

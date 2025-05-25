@@ -12,5 +12,4 @@ public interface IFriendRequestService
     Task<Result<string>> WithdrawFriendRequestAsync(Guid requestId);
     Task<Result<IEnumerable<FriendRequestModel>>> GetPendingReceivedRequestsAsync();
     Task<Result<IEnumerable<FriendRequestModel>>> GetPendingSentRequestsAsync();
-    Task<Result<IEnumerable<UserModel>>> GetFriendsAsync();
 }

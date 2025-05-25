@@ -55,7 +55,7 @@ public class FriendRequestService(
 
             var existingFriendship =
                 await friendshipRepository.CheckIfFrienshipExists(currentUserId, targetUserId);
-            
+
             if (existingFriendship is not null)
             {
                 return Result<string>.Success("You are already friends with this user.");
@@ -71,7 +71,7 @@ public class FriendRequestService(
             };
 
             await friendRequestRepository.InsertAsync(newFriendship);
-            
+
             await unitOfWork.SaveChangesAsync();
 
             // Optionally, send notification to target user
@@ -87,7 +87,8 @@ public class FriendRequestService(
         }
     }
 
-    public async Task<Result<string>> AcceptFriendRequestAsync(Guid requestId, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> AcceptFriendRequestAsync(Guid requestId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -98,8 +99,9 @@ public class FriendRequestService(
                 return Result<string>.Failure(
                     new Error("FriendRequest.InvalidId", "Invalid friend request ID"));
             }
-            
-            var friendshipRequest = await friendRequestRepository.GetByIdAsync(requestId, cancellationToken);
+
+            var friendshipRequest =
+                await friendRequestRepository.GetByIdAsync(requestId, cancellationToken);
             if (friendshipRequest.Status != FriendRequestStatus.Pending)
             {
                 return Result<string>.Failure(
@@ -115,7 +117,7 @@ public class FriendRequestService(
             }
 
             friendshipRequest.Status = FriendRequestStatus.Accepted;
-            
+
             var newFriendship = new Friendship
             {
                 Id = Guid.NewGuid(),
@@ -123,15 +125,15 @@ public class FriendRequestService(
                 FriendRequest = friendshipRequest,
                 CreatedAt = DateTime.UtcNow
             };
-            
+
             friendshipRequest.Friendship = newFriendship;
-            
+
             await friendRequestRepository.UpdateAsync(friendshipRequest, cancellationToken);
-            
+
             await friendshipRepository.InsertAsync(newFriendship, cancellationToken);
-            
+
             await unitOfWork.SaveChangesAsync(cancellationToken);
-            
+
             return Result<string>.Success();
         }
         catch (Exception ex)
@@ -207,9 +209,12 @@ public class FriendRequestService(
             {
                 string errorMessage = friendRequest.Status switch
                 {
-                    FriendRequestStatus.Accepted => "This friend request has already been accepted and cannot be withdrawn.",
-                    FriendRequestStatus.Rejected => "This friend request has already been rejected and cannot be withdrawn.",
-                    _ => $"This request cannot be withdrawn because it has a status of {friendRequest.Status} instead of Pending."
+                    FriendRequestStatus.Accepted =>
+                        "This friend request has already been accepted and cannot be withdrawn.",
+                    FriendRequestStatus.Rejected =>
+                        "This friend request has already been rejected and cannot be withdrawn.",
+                    _ =>
+                        $"This request cannot be withdrawn because it has a status of {friendRequest.Status} instead of Pending."
                 };
 
                 return Result<string>.Failure(
@@ -223,7 +228,7 @@ public class FriendRequestService(
             friendRequest.Status = FriendRequestStatus.Withdrawn;
 
             await friendRequestRepository.UpdateAsync(friendRequest);
-            
+
             await unitOfWork.SaveChangesAsync();
 
             return Result<string>.Success("Friend request withdrawn successfully");
@@ -353,53 +358,5 @@ public class FriendRequestService(
 
             _ => "just now"
         };
-    }
-
-    public async Task<Result<IEnumerable<UserModel>>> GetFriendsAsync()
-    {
-        try
-        {
-            var currentUserId = await IdentifyCurrentUser();
-            var friendships =
-                await friendRequestRepository.GetAcceptedFriendRequestForUserAsync(currentUserId);
-
-            var friendUserIds = new HashSet<string>();
-            foreach (var friendship in friendships)
-            {
-                if (friendship.SenderId == currentUserId)
-                {
-                    friendUserIds.Add(friendship.ReceiverId);
-                }
-                else if (friendship.ReceiverId == currentUserId)
-                {
-                    friendUserIds.Add(friendship.SenderId);
-                }
-            }
-
-            var friendModels = new List<UserModel>();
-            foreach (var friendId in friendUserIds)
-            {
-                var friendUser = await userRepository.GetByIdAsync(friendId);
-                if (friendUser != null)
-                {
-                    friendModels.Add(new UserModel
-                    {
-                        Id = friendUser.Id,
-                        UserName = friendUser.UserName,
-                        FirstName = friendUser.FirstName,
-                        LastName = friendUser.LastName,
-                        Email = friendUser.Email,
-                        ImageUrl = friendUser.ImageUrl,
-                    });
-                }
-            }
-
-            return Result<IEnumerable<UserModel>>.Success(friendModels);
-        }
-        catch (Exception ex)
-        {
-            return Result<IEnumerable<UserModel>>.Failure(
-                new Error("Friends.Exception", $"Failed to retrieve friends: {ex.Message}"));
-        }
     }
 }
