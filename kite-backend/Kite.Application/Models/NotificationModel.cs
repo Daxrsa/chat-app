@@ -10,6 +10,7 @@ public class NotificationModel
     public NotificationType Type { get; set; }
     public bool IsRead { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public string TimeElapsed { get; set; }
     public DateTimeOffset? ReadAt { get; set; }
     public string ReceiverId { get; set; }
     public UserModel Receiver { get; set; }

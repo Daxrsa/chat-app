@@ -1,6 +1,5 @@
 using Kite.Application.Interfaces;
 using Kite.Application.Models;
-using Kite.Application.Utilities;
 using Kite.Domain.Common;
 using Kite.Domain.Entities;
 using Kite.Domain.Interfaces;
@@ -31,13 +30,13 @@ public class NotificationService(
                 Message = notificationModel.Message,
                 Type = notificationModel.Type,
                 IsRead = notificationModel.IsRead,
-                CreatedAt = Helpers.GetTimeElapsedString(notificationModel.CreatedAt)
+                CreatedAt = DateTimeOffset.UtcNow
             };
 
             await notificationRepository.InsertAsync(notification, cancellationToken);
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            _ = SendRealTimeNotificationAsync(notificationModel.ReceiverId, notification);
+            // _ = SendRealTimeNotificationAsync(notificationModel.ReceiverId, notification);
 
             return Result<NotificationModel>.Success();
         }

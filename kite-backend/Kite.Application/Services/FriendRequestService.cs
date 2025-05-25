@@ -170,6 +170,13 @@ public class FriendRequestService(
                     new Error("FriendRequest.InvalidStatus",
                         $"This request cannot be rejected because it's not of pending status"));
             }
+            
+            if (friendship.ReceiverId != currentUserId)
+            {
+                return Result<string>.Failure(
+                    new Error("FriendRequest.Unauthorized",
+                        "You cannot reject this request as it was not sent to you"));
+            }
 
             friendship.Status = FriendRequestStatus.Rejected;
 
