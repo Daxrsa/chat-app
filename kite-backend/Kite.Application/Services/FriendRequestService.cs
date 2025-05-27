@@ -15,24 +15,15 @@ public class FriendRequestService(
     IFriendRequestRepository friendRequestRepository,
     IUnitOfWork unitOfWork,
     IUserRepository userRepository,
+    INotificationService notificationService,
     IFriendshipRepository friendshipRepository) : IFriendRequestService
 {
-    private async Task<string?> IdentifyCurrentUser()
-    {
-        var currentUserResult = await userAccessor.GetCurrentUserIdAsync();
-        if (!currentUserResult.IsSuccess)
-        {
-            throw new UnauthorizedAccessException("Failed to identify the current user");
-        }
-
-        return currentUserResult.Value;
-    }
-
-    public async Task<Result<string>> SendFriendRequestAsync(string targetUserId)
+    public async Task<Result<string>> SendFriendRequestAsync(string targetUserId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
+            var currentUserId = userAccessor.GetCurrentUserId();
 
             if (string.IsNullOrEmpty(targetUserId))
             {
@@ -55,7 +46,8 @@ public class FriendRequestService(
             }
 
             var existingFriendship =
-                await friendshipRepository.CheckIfFrienshipExists(currentUserId, targetUserId);
+                await friendshipRepository.CheckIfFrienshipExists(currentUserId, targetUserId,
+                    cancellationToken);
 
             if (existingFriendship is not null)
             {
@@ -71,12 +63,21 @@ public class FriendRequestService(
                 CreatedAt = DateTime.UtcNow
             };
 
-            await friendRequestRepository.InsertAsync(newFriendship);
+            await friendRequestRepository.InsertAsync(newFriendship, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await unitOfWork.SaveChangesAsync();
+            var notificationModel = new NotificationModel
+            {
+                SenderId = currentUserId,
+                ReceiverId = targetUserId,
+                Message =
+                    $"You have received a friend request from {userAccessor.GetUserFirstName()} {userAccessor.GetUserLastName()}",
+                Type = NotificationType.FriendRequest,
+                IsRead = false,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
 
-            // Optionally, send notification to target user
-            // await _notificationService.SendFriendRequestNotificationAsync(targetUserId, currentUserId);
+            await notificationService.CreateNotificationAsync(notificationModel, cancellationToken);
 
             return Result<string>.Success();
         }
@@ -93,8 +94,6 @@ public class FriendRequestService(
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
-
             if (requestId == Guid.Empty)
             {
                 return Result<string>.Failure(
@@ -108,13 +107,6 @@ public class FriendRequestService(
                 return Result<string>.Failure(
                     new Error("FriendRequest.InvalidStatus",
                         $"This request cannot be accepted because it's not of pending status"));
-            }
-
-            if (friendshipRequest.ReceiverId != currentUserId)
-            {
-                return Result<string>.Failure(
-                    new Error("FriendRequest.Unauthorized",
-                        "You cannot accept this request as it was not sent to you"));
             }
 
             friendshipRequest.Status = FriendRequestStatus.Accepted;
@@ -145,19 +137,19 @@ public class FriendRequestService(
         }
     }
 
-    public async Task<Result<string>> RejectFriendRequestAsync(Guid requestId)
+    public async Task<Result<string>> RejectFriendRequestAsync(Guid requestId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
-
             if (requestId == Guid.Empty)
             {
                 return Result<string>.Failure(
                     new Error("FriendRequest.InvalidId", "Invalid friend request ID"));
             }
 
-            var friendship = await friendRequestRepository.GetByIdAsync(requestId);
+            var friendship =
+                await friendRequestRepository.GetByIdAsync(requestId, cancellationToken);
             if (friendship == null)
             {
                 return Result<string>.Failure(
@@ -170,19 +162,12 @@ public class FriendRequestService(
                     new Error("FriendRequest.InvalidStatus",
                         $"This request cannot be rejected because it's not of pending status"));
             }
-            
-            if (friendship.ReceiverId != currentUserId)
-            {
-                return Result<string>.Failure(
-                    new Error("FriendRequest.Unauthorized",
-                        "You cannot reject this request as it was not sent to you"));
-            }
 
             friendship.Status = FriendRequestStatus.Rejected;
 
-            await friendRequestRepository.UpdateAsync(friendship);
+            await friendRequestRepository.UpdateAsync(friendship, cancellationToken);
 
-            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<string>.Success("Friend request rejected successfully");
         }
@@ -194,19 +179,19 @@ public class FriendRequestService(
         }
     }
 
-    public async Task<Result<string>> WithdrawFriendRequestAsync(Guid requestId)
+    public async Task<Result<string>> WithdrawFriendRequestAsync(Guid requestId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
-
             if (requestId == Guid.Empty)
             {
                 return Result<string>.Failure(
                     new Error("FriendRequest.InvalidId", "Invalid friend request ID"));
             }
 
-            var friendRequest = await friendRequestRepository.GetByIdAsync(requestId);
+            var friendRequest =
+                await friendRequestRepository.GetByIdAsync(requestId, cancellationToken);
             if (friendRequest == null)
             {
                 return Result<string>.Failure(
@@ -235,9 +220,9 @@ public class FriendRequestService(
 
             friendRequest.Status = FriendRequestStatus.Withdrawn;
 
-            await friendRequestRepository.UpdateAsync(friendRequest);
+            await friendRequestRepository.UpdateAsync(friendRequest, cancellationToken);
 
-            await unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<string>.Success("Friend request withdrawn successfully");
         }
@@ -253,7 +238,7 @@ public class FriendRequestService(
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
+            var currentUserId = userAccessor.GetCurrentUserId();
 
             var pendingRequests =
                 await friendRequestRepository.GetPendingReceivedFriendRequestsAsync(currentUserId);
@@ -293,7 +278,7 @@ public class FriendRequestService(
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
+            var currentUserId = userAccessor.GetCurrentUserId();
 
             var pendingSentRequests =
                 await friendRequestRepository.GetPendingSentFriendRequestsAsync(currentUserId);

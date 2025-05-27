@@ -58,36 +58,9 @@ public class UserAccessor(
         }
     }
 
-    public async Task<Result<string>> GetCurrentUserIdAsync()
+    public string GetCurrentUserId()
     {
-        try
-        {
-            var principal = GetCurrentClaimsPrincipal();
-            if (principal == null)
-            {
-                return Result<string>.Failure(UserErrors.NoPrincipal);
-            }
-
-            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrEmpty(userId))
-            {
-                return Result<string>.Success(userId);
-            }
-
-            var user = await userManager.GetUserAsync(principal);
-            if (user == null)
-            {
-                return Result<string>.Failure(UserErrors.NotFound);
-            }
-
-            return Result<string>.Success(user.Id);
-        }
-        catch (Exception ex)
-        {
-            return Result<string>.Failure(
-                new Error("Authentication.Exception",
-                    $"An error occurred while getting the current user ID: {ex.Message}"));
-        }
+        return httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
     }
     
     public async Task<Result<List<UserModel>>> GetAllUsersAsync()
@@ -125,5 +98,15 @@ public class UserAccessor(
                 new Error("Authentication.Exception",
                     $"An error occurred while getting all users: {ex.Message}"));
         }
+    }
+    
+    public string GetUserFirstName()
+    {
+        return httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.GivenName);
+    }
+    
+    public string GetUserLastName()
+    {
+        return httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Surname);
     }
 }

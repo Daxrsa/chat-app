@@ -2,7 +2,7 @@ namespace Kite.Domain.Enums;
 
 public enum NotificationType
 {
-    Friend,
+    FriendRequest,
     Message,
     SystemAlert
 }

@@ -74,6 +74,7 @@ builder.Services.AddScoped<IUserAccessor, UserAccessor>();
 builder.Services.AddScoped<IFriendRequestService, FriendRequestService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IRealTimeNotificationSender, RealTimeNotificationSender>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();

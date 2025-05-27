@@ -8,6 +8,8 @@ namespace Kite.Application.Interfaces;
 public interface IUserAccessor
 {
     Task<Result<UserModel>> GetCurrentUserAsync();
-    Task<Result<string>> GetCurrentUserIdAsync();
+    string GetCurrentUserId();
+    string GetUserFirstName();
+    string GetUserLastName();
     Task<Result<List<UserModel>>> GetAllUsersAsync();
 }

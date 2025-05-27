@@ -16,23 +16,12 @@ public class FriendshipService(
     IUserRepository userRepository,
     IFriendshipRepository friendshipRepository) : IFriendshipService
 {
-    private async Task<string?> IdentifyCurrentUser()
-    {
-        var currentUserResult = await userAccessor.GetCurrentUserIdAsync();
-        if (!currentUserResult.IsSuccess)
-        {
-            throw new UnauthorizedAccessException("Failed to identify the current user");
-        }
-
-        return currentUserResult.Value;
-    }
-
     public async Task<Result<string>> RemoveFriendAsync(string friendUserId,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
+            var currentUserId = userAccessor.GetCurrentUserId();
 
             if (string.IsNullOrEmpty(friendUserId))
             {
@@ -48,7 +37,7 @@ public class FriendshipService(
             }
 
             var existingFriendship =
-                await friendshipRepository.CheckIfFrienshipExists(currentUserId, friendUserId);
+                await friendshipRepository.CheckIfFrienshipExists(currentUserId, friendUserId, cancellationToken);
             if (existingFriendship == null)
             {
                 return Result<string>.Failure(
@@ -84,7 +73,7 @@ public class FriendshipService(
     {
         try
         {
-            var currentUserId = await IdentifyCurrentUser();
+            var currentUserId = userAccessor.GetCurrentUserId();
             var friendships =
                 await friendRequestRepository.GetAcceptedFriendRequestForUserAsync(currentUserId);
 

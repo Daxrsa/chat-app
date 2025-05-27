@@ -14,4 +14,6 @@ public class NotificationModel
     public DateTimeOffset? ReadAt { get; set; }
     public string ReceiverId { get; set; }
     public UserModel Receiver { get; set; }
+    public string SenderId { get; set; }
+    public UserModel Sender { get; set; }
 }
