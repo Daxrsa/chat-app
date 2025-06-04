@@ -4,6 +4,7 @@ using Kite.Domain.Entities;
 using Kite.Domain.Interfaces;
 using Kite.Infrastructure;
 using Kite.Infrastructure.Repositories;
+using Kite.Infrastructure.Services;
 using Kite.Web.Extensions;
 using Kite.Web.Hubs;
 using Microsoft.AspNetCore.Identity;
@@ -77,6 +78,7 @@ builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRealTimeNotificationSender, RealTimeNotificationSender>();
 builder.Services.AddScoped<INotificationHubContext, SignalRHubContext>();
+builder.Services.AddScoped<IFileUploaderService, FileUploaderService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();

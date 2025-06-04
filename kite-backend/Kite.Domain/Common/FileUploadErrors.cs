@@ -8,11 +8,8 @@ public static class FileUploadErrors
     public static Error EmptyFile =>
         new Error("FileUpload.EmptyFile", "The uploaded file is empty.");
 
-    public static Error SizeExceeded =>
-        new Error("FileUpload.SizeExceeded", "File size exceeds the maximum allowed limit.");
-
-    public static Error SizeExceededWithLimit(long maxSizeInBytes) =>
-        new Error("FileUpload.SizeExceeded", $"File size exceeds the maximum allowed limit of {maxSizeInBytes / (1024 * 1024)} MB.");
+    public static Error SizeExceededWithLimit(string maxSizeInBytes) =>
+        new Error("FileUpload.SizeExceeded", $"File size exceeds the maximum allowed limit of {maxSizeInBytes}");
 
     public static Error InvalidExtension =>
         new Error("FileUpload.InvalidExtension", "File extension is not permitted.");
