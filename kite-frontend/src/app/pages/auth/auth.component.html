@@ -11,7 +11,7 @@
                     <!-- Alert for errors -->
                     <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ errorMessage }}
-                        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+                        <button type="button" class="btn-close h-auto" (click)="errorMessage = ''" aria-label="Close"></button>
                     </div>
 
                     <form (ngSubmit)="handleSubmit($event)">
@@ -19,44 +19,34 @@
                         <ng-container *ngIf="!isLogin">
                             <div class="mb-3">
                                 <div class="input-group">
-                                    <input type="text" id="firstName" class="form-control" 
-                                        [(ngModel)]="firstName" name="firstName"
-                                        placeholder="First Name">
+                                    <input type="text" id="firstName" class="form-control" [(ngModel)]="firstName"
+                                        name="firstName" placeholder="First Name">
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <div class="input-group">
-                                    <input type="text" id="lastName" class="form-control"
-                                        [(ngModel)]="lastName" name="lastName"
-                                        placeholder="Last Name">
+                                    <input type="text" id="lastName" class="form-control" [(ngModel)]="lastName"
+                                        name="lastName" placeholder="Last Name">
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <input type="text" id="emailOrPhone" class="form-control"
-                                        [(ngModel)]="emailOrPhone" name="emailOrPhone"
-                                        placeholder="Email or Phone Number">
-                                </div>
-                            </div>
                         </ng-container>
 
                         <!-- Common fields for both login and register -->
                         <div class="mb-3">
                             <div class="input-group">
-                                <input type="text" id="emailOrPhone" class="form-control"
-                                    [(ngModel)]="emailOrPhone" name="emailOrPhone"
-                                    placeholder="Enter your email {{ isLogin ? 'or phone' : '' }}">
+                                <input type="text" id="email" class="form-control" [(ngModel)]="email"
+                                    name="email" placeholder="Enter your email">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <div class="input-group">
                                 <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-control"
-                                    [(ngModel)]="password" name="password"
-                                    placeholder="Enter your password">
-                                <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword">
+                                    [(ngModel)]="password" name="password" placeholder="Enter your password">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    (click)="showPassword = !showPassword">
                                     <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
                                 </button>
                             </div>
@@ -66,16 +56,15 @@
                         <div class="mb-3" *ngIf="!isLogin">
                             <div class="input-group">
                                 <input type="password" id="confirmPassword" class="form-control"
-                                    [(ngModel)]="confirmPassword" name="confirmPassword"
-                                    placeholder="Confirm password">
+                                    [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Confirm password">
                             </div>
                         </div>
 
                         <!-- Remember me & Forgot Password - only for login -->
                         <div class="mb-4 form-check d-flex justify-content-between" *ngIf="isLogin">
                             <div>
-                                <input type="checkbox" class="form-check-input" id="rememberMe"
-                                    [(ngModel)]="rememberMe" name="rememberMe">
+                                <input type="checkbox" class="form-check-input" id="rememberMe" [(ngModel)]="rememberMe"
+                                    name="rememberMe">
                                 <label class="custom-blueviolet text-muted form-check-label" for="rememberMe">Remember
                                     me</label>
                             </div>
@@ -85,10 +74,12 @@
 
                         <!-- Terms & conditions for registration -->
                         <div class="mb-4 form-check" *ngIf="!isLogin">
-                            <input type="checkbox" class="form-check-input" id="termsAgreed"
-                                [(ngModel)]="termsAgreed" name="termsAgreed">
+                            <input type="checkbox" class="form-check-input" id="termsAgreed" [(ngModel)]="termsAgreed"
+                                name="termsAgreed">
                             <label class="text-muted form-check-label" for="termsAgreed">
-                                I agree to the <a href="#" class="custom-blueviolet text-decoration-none">Terms of Service</a> and <a href="#" class="custom-blueviolet text-decoration-none">Privacy Policy</a>
+                                I agree to the <a href="#" class="custom-blueviolet text-decoration-none">Terms of
+                                    Service</a> and <a href="#" class="custom-blueviolet text-decoration-none">Privacy
+                                    Policy</a>
                             </label>
                         </div>
 
@@ -117,12 +108,14 @@
 
                         <div class="text-center d-flex flex-column">
                             <p class="text-muted mb-0" *ngIf="isLogin">
-                                Don't have an account? 
-                                <a href="#" class="text-decoration-none custom-blueviolet" (click)="switchtoRegister(); $event.preventDefault()">Register</a>
+                                Don't have an account?
+                                <a href="#" class="text-decoration-none custom-blueviolet"
+                                    (click)="switchtoRegister(); $event.preventDefault()">Register</a>
                             </p>
                             <p class="text-muted mb-0" *ngIf="!isLogin">
-                                Already have an account?  
-                                <a href="#" class="text-decoration-none custom-blueviolet" (click)="switchToLogin(); $event.preventDefault()">Log in</a>
+                                Already have an account?
+                                <a href="#" class="text-decoration-none custom-blueviolet"
+                                    (click)="switchToLogin(); $event.preventDefault()">Log in</a>
                             </p>
                         </div>
                     </form>

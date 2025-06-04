@@ -5,6 +5,7 @@ using Kite.Domain.Interfaces;
 using Kite.Infrastructure;
 using Kite.Infrastructure.Repositories;
 using Kite.Web.Extensions;
+using Kite.Web.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -75,11 +76,27 @@ builder.Services.AddScoped<IFriendRequestService, FriendRequestService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRealTimeNotificationSender, RealTimeNotificationSender>();
+builder.Services.AddScoped<INotificationHubContext, SignalRHubContext>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
 builder.Services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
 
 var app = builder.Build();
 
@@ -107,7 +124,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Kite API v1"));
 }
-
+app.UseCors("AllowSpecificOrigin");
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -117,20 +117,6 @@ public class AuthService(
         }
     }
 
-    public async Task<Result<bool>> LogoutAsync()
-    {
-        try
-        {
-            await signInManager.SignOutAsync();
-            return Result<bool>.Success(true);
-        }
-        catch (Exception ex)
-        {
-            return Result<bool>.Failure(new Error("Logout.Exception",
-                $"An error occurred during logout: {ex.Message}"));
-        }
-    }
-
     public async Task<Result<string>> DeleteUserByEmail(string email)
     {
         try

@@ -16,8 +16,6 @@ public class Notification : IEntity<Guid>
     public string Message { get; set; }
     public NotificationType Type { get; set; }
     public bool IsRead { get; set; }
-    [NotMapped]
     public DateTimeOffset CreatedAt { get; set; } 
-    [NotMapped]
     public DateTimeOffset? ReadAt { get; set; }
 }

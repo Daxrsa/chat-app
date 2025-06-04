@@ -1,32 +1,43 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary pe-3 ps-3 pt-2 pb-2">
-    <div class="container-fluid gap-5">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="d-flex gap-2 align-items-center">
-            <img class="user-avatar img-fluid" src="../../../assets/icons/kite.png" alt="Kite Logo">
-            <span>Kite</span>
-        </div>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav gap-4">
-                <a class="fw-light nav-link" href="/inbox">Inbox</a>
-                <a class="fw-light nav-link" href="/contacts">Contacts</a>
-                <a class="fw-light nav-link" href="#">Settings</a>
-            </div>
-        </div>
-        <button class="import-contacts-btn d-flex gap-2 pe-3 pt-1 pb-1 ps-3 text-white circle" type="button">
-            <i class="bi bi-search"></i>
-            <span>Search for a user</span></button>
-        <div class="d-flex gap-2 align-items-center">
-            <img src="../../../assets/images/female-avatar.svg" class="object-fit-cover img-fluid rounded-circle user-avatar"
-                alt="User Avatar">
-            <span class="">Emma Wilson</span>
-        </div>
+  <div class="container-fluid gap-5">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="d-flex gap-2 align-items-center">
+      <img class="user-avatar img-fluid" src="../../../assets/icons/kite.png" alt="Kite Logo">
+      <span>Kite</span>
     </div>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav gap-4">
+        <a class="fw-light nav-link" href="/inbox">Inbox</a>
+        <a class="fw-light nav-link" href="/contacts">Contacts</a>
+        <a class="fw-light nav-link" href="#">Settings</a>
+      </div>
+    </div>
+    <button class="import-contacts-btn d-flex gap-2 pe-3 pt-1 pb-1 ps-3 text-white circle" type="button">
+      <i class="bi bi-search"></i>
+      <span>Search for a user</span></button>
+    <div class="d-flex gap-2 align-items-center">
+      <div class="btn-group">
+        <button type="button" class="btn border-0 dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
+          <img src="../../../assets/images/female-avatar.svg"
+            class="object-fit-cover img-fluid rounded-circle user-avatar ml-1" alt="User Avatar">
+          <span class="">{{loggedInUser?.firstname}} {{loggedInUser?.lastname}}</span>
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#">My Profile</a>
+          <div class="dropdown-divider"></div>
+          <a (click)="removeToken()" class="dropdown-item" href="#">Log Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </nav>
 
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">

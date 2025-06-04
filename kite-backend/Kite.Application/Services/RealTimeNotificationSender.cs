@@ -17,7 +17,7 @@ public class RealTimeNotificationSender(INotificationHubContext notificationHubC
 
             if (!result.IsSuccess)
             {
-                return Result<bool>.Failure($"Failed to send notification to user: {userId}");
+                return Result<bool>.Failure($"Failed to send notification to user {userId}");
             }
 
             return Result<bool>.Success();

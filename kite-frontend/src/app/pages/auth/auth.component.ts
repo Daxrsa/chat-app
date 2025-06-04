@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-auth',
@@ -15,17 +17,16 @@ export class AuthComponent {
   errorMessage = '';
   showPassword = false;
   
-  // Form fields
-  username = '';
+  email = '';
   password = '';
+  username = '';
   rememberMe = false;
-  
-  // Registration fields
   firstName = '';
   lastName = '';
-  emailOrPhone = '';
   confirmPassword = '';
   termsAgreed = false;
+
+  constructor(private authService: AuthService, private router: Router) {}
 
   switchtoRegister(): void {
     this.isLogin = false;
@@ -38,11 +39,10 @@ export class AuthComponent {
   }
 
   resetFormFields(): void {
-    this.username = '';
     this.password = '';
     this.firstName = '';
     this.lastName = '';
-    this.emailOrPhone = '';
+    this.email = '';
     this.confirmPassword = '';
     this.rememberMe = false;
     this.termsAgreed = false;
@@ -61,43 +61,34 @@ export class AuthComponent {
 
   login(): void {
     this.loading = true;
+    this.errorMessage = '';
     
-    // Validate inputs
-    if (!this.username || !this.password) {
-      this.errorMessage = 'Please enter both username and password';
+    if (!this.email || !this.password) {
+      this.errorMessage = 'Please enter both email and password';
       this.loading = false;
       return;
     }
 
-    // Create login payload
-    const loginData = {
-      username: this.username,
-      password: this.password,
-      rememberMe: this.rememberMe
-    };
-    
-    console.log('Login data:', loginData);
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.loading = false;
-      console.log('Login successful (simulation)');
-      // Here you would normally navigate to the inbox
-      // this.router.navigate(['/inbox']);
-    }, 1500);
-    
-    // In real implementation you would:
-    // this.authService.login(loginData).subscribe(
-    //   response => { /* handle success */ },
-    //   error => { /* handle error */ }
-    // );
+    this.authService.login(this.email, this.password, this.rememberMe).subscribe({
+      next: response => {
+        localStorage.setItem('token', response.token);
+        this.router.navigate(['/inbox']);
+        this.loading = false;
+        console.log('Login success:', response);
+      },
+      error: err => {
+        // Handle error
+        this.loading = false;
+        this.errorMessage = err.error?.message || 'Login failed. Please try again.';
+      }
+    });
   }
 
   register(): void {
     this.loading = true;
+    this.errorMessage = '';
     
-    // Validate inputs
-    if (!this.firstName || !this.lastName || !this.emailOrPhone || !this.username || !this.password) {
+    if (!this.firstName || !this.lastName || !this.email || !this.password) {
       this.errorMessage = 'Please fill in all required fields';
       this.loading = false;
       return;
@@ -115,28 +106,22 @@ export class AuthComponent {
       return;
     }
 
-    // Create registration payload
-    const registerData = {
-      firstName: this.firstName,
-      lastName: this.lastName,
-      emailOrPhone: this.emailOrPhone,
-      username: this.username,
-      password: this.password
-    };
-    
-    console.log('Registration data:', registerData);
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.loading = false;
-      console.log('Registration successful (simulation)');
-      // Here you would normally navigate to the inbox or show a success message
-    }, 1500);
-    
-    // In real implementation you would:
-    // this.authService.register(registerData).subscribe(
-    //   response => { /* handle success */ },
-    //   error => { /* handle error */ }
-    // );
+    this.authService.register(
+      this.email,
+      this.password,
+      this.username,
+      this.firstName,
+      this.lastName,
+    ).subscribe({
+      next: response => {
+        this.loading = false;
+        console.log('Registration success:', response);
+        this.switchToLogin(); 
+      },
+      error: err => {
+        this.loading = false;
+        this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
+      }
+    });
   }
 }

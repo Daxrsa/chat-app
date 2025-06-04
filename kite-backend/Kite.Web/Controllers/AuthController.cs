@@ -16,8 +16,4 @@ public class AuthController(IAuthService authService) : BaseApiController
     [HttpPost("login-user")]
     public async Task<IActionResult> Login(LoginModel model)
         => HandleResult(await authService.LoginAsync(model));
-    
-    [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
-        => HandleResult(await authService.LogoutAsync());
 }

@@ -6,21 +6,19 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kite.Infrastructure;
 
-public class AppDbContext : IdentityDbContext<ApplicationUser>
+public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration) 
+    : IdentityDbContext<ApplicationUser>(options)
 {
-    private readonly IConfiguration _configuration;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration)
-        : base(options)
-    {
-        _configuration = configuration;
-    }
+    
+    public DbSet<Friendship> Friendships { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<FriendRequest> FriendRequests { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (optionsBuilder.IsConfigured) return;
 
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -78,6 +76,36 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Id).HasColumnType("uuid").ValueGeneratedOnAdd();
             entity.Property(e => e.FriendRequestId).HasColumnType("uuid");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+        });
+        
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.HasOne(n => n.Receiver)
+                .WithMany() 
+                .HasForeignKey(n => n.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict) 
+                .IsRequired();
+
+            entity.HasOne(n => n.Sender)
+                .WithMany() 
+                .HasForeignKey(n => n.SenderId)
+                .OnDelete(DeleteBehavior.Restrict) 
+                .IsRequired();
+
+            entity.Property(n => n.Message)
+                .IsRequired();
+              
+            entity.Property(n => n.Type)
+                .IsRequired();
+              
+            entity.Property(n => n.IsRead)
+                .HasDefaultValue(false);
+            
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+            
+            entity.Property(e => e.ReadAt).HasColumnType("timestamptz");
         });
     }
 }

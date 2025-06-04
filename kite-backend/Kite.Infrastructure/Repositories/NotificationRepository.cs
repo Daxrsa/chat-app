@@ -10,16 +10,6 @@ public class NotificationRepository : GenericRepository<Notification, Guid>, INo
     {
     }
     
-    public async Task<Notification?> GetExistingNotificationAsync(Notification request, CancellationToken cancellationToken)
-    {
-        return await _dbSet
-            .FirstOrDefaultAsync(n =>
-                    n.SenderId == request.SenderId &&
-                    n.ReceiverId == request.ReceiverId &&
-                    n.Type == request.Type,
-                cancellationToken);
-    }
-    
     public async Task<IEnumerable<Notification>> GetNotificationsForUserAsync(string userId, CancellationToken cancellationToken)
     {
         return await _dbSet
