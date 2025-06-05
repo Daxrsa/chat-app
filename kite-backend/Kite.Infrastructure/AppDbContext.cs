@@ -53,17 +53,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
             entity.Property(e => e.ResendRequestTime).HasColumnType("timestamptz");
             entity.Property(e => e.Status).HasConversion<int>();
-
             entity.HasOne(e => e.UserOne)
                 .WithMany(u => u.FriendRequests)
                 .HasForeignKey(e => e.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
-
             entity.HasOne(e => e.UserTwo)
                 .WithMany()
                 .HasForeignKey(e => e.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
-
             entity.HasOne(fr => fr.Friendship)
                 .WithOne(f => f.FriendRequest)
                 .HasForeignKey<Friendship>(f => f.FriendRequestId)
@@ -81,40 +78,33 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
         modelBuilder.Entity<Notification>(entity =>
         {
             entity.HasKey(e => e.Id);
-
             entity.HasOne(n => n.Receiver)
                 .WithMany()
                 .HasForeignKey(n => n.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
-
             entity.HasOne(n => n.Sender)
                 .WithMany()
                 .HasForeignKey(n => n.SenderId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
-
             entity.Property(n => n.Message)
                 .IsRequired();
-
             entity.Property(n => n.Type)
                 .IsRequired();
-
             entity.Property(n => n.IsRead)
                 .HasDefaultValue(false);
-
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
-
             entity.Property(e => e.ReadAt).HasColumnType("timestamptz");
         });
 
         modelBuilder.Entity<ApplicationFile>(entity =>
         {
+            entity.HasKey(e => e.Id);
             entity.HasOne(f => f.User)
                 .WithMany(u => u.Files)
                 .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
             entity.Property(e => e.UploadedAt).HasColumnType("timestamptz");
         });
     }

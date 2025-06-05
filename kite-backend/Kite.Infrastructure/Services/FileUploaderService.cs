@@ -3,12 +3,16 @@ using Kite.Application.Interfaces;
 using Kite.Application.Models;
 using Kite.Application.Utilities;
 using Kite.Domain.Common;
+using Kite.Domain.Entities;
+using Kite.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Kite.Infrastructure.Services;
 
 public class FileUploaderService(
+    IApplicationFileRepository  fileRepository,
+    IUnitOfWork unitOfWork,
     IUserAccessor userAccessor,
     IAntivirusService antivirusService) : IFileUploaderService
 {
@@ -39,7 +43,7 @@ public class FileUploaderService(
     {
         try
         {
-            // var currentUserId = userAccessor.GetCurrentUserId();
+            var currentUserId = userAccessor.GetCurrentUserId();
 
             if (file == null || file.Length == 0)
                 return Result<FileUploadResult>.Failure(FileUploadErrors.NoFile);
@@ -82,16 +86,29 @@ public class FileUploaderService(
             // await RemoveExecutePermissionsAsync(finalPath);
 
             var encodedOriginalName = HtmlEncoder.Default.Encode(Path.GetFileName(file.FileName));
+            var fileSize = Helpers.FormatFileSize(file.Length);
             var result = new FileUploadResult
             {
                 Message = "File uploaded successfully.",
                 OriginalFileName = encodedOriginalName,
                 StoredFileName = safeFileName,
                 FilePath = finalPath,
-                FileSize = Helpers.FormatFileSize(file.Length),
-                UploadedAt = DateTime.UtcNow
+                FileSize = fileSize,
+                UploadedAt = DateTime.UtcNow,
+                UploadedBy = currentUserId
             };
 
+            var fileInDb = new ApplicationFile
+            {
+                Filename = safeFileName,
+                Extension = ext,
+                Size = fileSize,
+                UserId = currentUserId,
+                UploadedAt = DateTimeOffset.UtcNow
+            };
+
+            await fileRepository.InsertAsync(fileInDb, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
             return Result<FileUploadResult>.Success(result);
         }
         catch (DirectoryNotFoundException)
@@ -118,6 +135,8 @@ public class FileUploaderService(
     {
         try
         {
+            var currentUserId = userAccessor.GetCurrentUserId();
+            
             var uploadStartTime = DateTime.UtcNow;
 
             if (files == null || !files.Any())
@@ -175,7 +194,7 @@ public class FileUploaderService(
                 UploadedAt = uploadStartTime,
                 CompletedAt = uploadEndTime,
                 UploadDurationMs = totalDuration,
-                UploadedBy = "" 
+                UploadedBy = currentUserId
             };
             
             return Result<BatchUploadResult>.Success(batchResult);
