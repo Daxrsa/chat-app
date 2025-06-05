@@ -47,14 +47,14 @@ public class FileUploaderService(
             if (file.Length > FileSizeLimit)
                 return Result<FileUploadResult>.Failure(
                     FileUploadErrors.SizeExceededWithLimit(Helpers.FormatFileSize(FileSizeLimit)));
-            
+
             var avScan = await antivirusService.ScanFileAsync(file);
-        
+
             if (!avScan.IsSuccess)
             {
                 return Result<FileUploadResult>.Failure(avScan.Errors.First().Description);
             }
-        
+
             if (!avScan.Value.IsClean)
             {
                 return Result<FileUploadResult>.Failure(
@@ -175,21 +175,16 @@ public class FileUploaderService(
                 UploadedAt = uploadStartTime,
                 CompletedAt = uploadEndTime,
                 UploadDurationMs = totalDuration,
-                UploadedBy = ""
+                UploadedBy = "" 
             };
-
-            if (successfulUploads.Count > 0)
-            {
-                return Result<BatchUploadResult>.Success(batchResult);
-            }
-
-            return Result<BatchUploadResult>.Failure(
-                $"{files.Count} file/s failed to upload. See FailedUploads for details.");
+            
+            return Result<BatchUploadResult>.Success(batchResult);
         }
         catch (Exception ex)
         {
             return Result<BatchUploadResult>.Failure(
-                $"Critical error during batch upload: {ex.Message}");
+                new Error("BatchUpload.CriticalError",
+                    $"Critical error during batch upload: {ex.Message}"));
         }
     }
 }

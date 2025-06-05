@@ -1,3 +1,5 @@
+using Kite.Domain.Common;
+
 namespace Kite.Application.Models;
 
 public class BatchUploadResult
@@ -12,6 +14,7 @@ public class BatchUploadResult
     public DateTime UploadedAt { get; set; }
     public DateTime CompletedAt { get; set; }
     public double UploadDurationMs { get; set; }
+    public List<FileUploadError> FailedFiles { get; set; } = new();
     public string UploadedBy { get; set; } = string.Empty;
     public string Summary => $"Uploaded {SuccessCount}/{TotalFiles} files successfully";
     public string DetailedSummary => IsCompleteSuccess 
