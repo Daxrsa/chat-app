@@ -1,13 +1,14 @@
 using System.Text.Encodings.Web;
 using Kite.Application.Interfaces;
 using Kite.Application.Models;
+using Kite.Application.Utilities;
 using Kite.Domain.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Kite.Infrastructure.Services;
 
-public class FileUploaderService(ILogger<FileUploaderService> logger) : IFileUploaderService
+public class FileUploaderService : IFileUploaderService
 {
     private static readonly string[] PermittedExtensions =
         { ".txt", ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".mp3", ".mp4", ".webp" };
@@ -45,7 +46,7 @@ public class FileUploaderService(ILogger<FileUploaderService> logger) : IFileUpl
 
             if (file.Length > FileSizeLimit)
                 return Result<FileUploadResult>.Failure(
-                    FileUploadErrors.SizeExceededWithLimit(FormatFileSize(FileSizeLimit)));
+                    FileUploadErrors.SizeExceededWithLimit(Helpers.FormatFileSize(FileSizeLimit)));
 
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (string.IsNullOrEmpty(ext) || !PermittedExtensions.Contains(ext))
@@ -74,7 +75,7 @@ public class FileUploaderService(ILogger<FileUploaderService> logger) : IFileUpl
                 OriginalFileName = encodedOriginalName,
                 StoredFileName = safeFileName,
                 FilePath = finalPath,
-                FileSize = FormatFileSize(file.Length),
+                FileSize = Helpers.FormatFileSize(file.Length),
                 UploadedAt = DateTime.UtcNow
             };
 
@@ -98,33 +99,88 @@ public class FileUploaderService(ILogger<FileUploaderService> logger) : IFileUpl
         }
     }
 
-    public Task<Result<List<FileUploadResult>>> UploadMultipleFilesAsync(IFormFileCollection files, CancellationToken cancellationToken)
+    public async Task<Result<BatchUploadResult>> UploadFilesAsync(
+        IFormFileCollection files,
+        CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-    }
-
-    private static string FormatFileSize(long sizeInBytes)
-    {
-        if (sizeInBytes == 0)
-            return "0 B";
-
-        string[] units = { "B", "KB", "MB", "GB", "TB", "PB" };
-        double size = sizeInBytes;
-        int unitIndex = 0;
-
-        while (size >= 1024 && unitIndex < units.Length - 1)
+        try
         {
-            size /= 1024;
-            unitIndex++;
-        }
+            var uploadStartTime = DateTime.UtcNow;
 
-        return unitIndex == 0
-            ? $"{size:F0} {units[unitIndex]}"
-            : $"{size:F2} {units[unitIndex]}";
+            if (files == null || !files.Any())
+                return Result<BatchUploadResult>.Failure(FileUploadErrors.NoFile);
+
+            var successfulUploads = new List<FileUploadResult>();
+            var failedUploads = new List<FailedUpload>();
+
+            var fileIndex = 0;
+            foreach (var file in files)
+            {
+                fileIndex++;
+
+                try
+                {
+                    var uploadResult = await UploadFileAsync(file, cancellationToken);
+
+                    if (uploadResult.IsSuccess)
+                    {
+                        successfulUploads.Add(uploadResult.Value);
+                    }
+                    else 
+                    {
+                        var failedUpload = new FailedUpload
+                        {
+                            FileName = file.FileName ?? "unknown",
+                            Reason = uploadResult.Errors.FirstOrDefault()?.Description ?? "Unknown error"
+                        };
+                        failedUploads.Add(failedUpload);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var failedUpload = new FailedUpload
+                    {
+                        FileName = file.FileName ?? "unknown",
+                        Reason = $"Unexpected error during upload - {ex.Message}"
+                    };
+                    failedUploads.Add(failedUpload);
+                }
+            }
+
+            var uploadEndTime = DateTime.UtcNow;
+            var totalDuration = (uploadEndTime - uploadStartTime).TotalMilliseconds;
+
+            var batchResult = new BatchUploadResult
+            {
+                TotalFiles = files.Count,
+                SuccessfulUploads = successfulUploads,
+                FailedUploads = failedUploads,
+                SuccessCount = successfulUploads.Count,
+                FailureCount = failedUploads.Count,
+                IsPartialSuccess = failedUploads.Count > 0 && successfulUploads.Count > 0,
+                UploadedAt = uploadStartTime,
+                CompletedAt = uploadEndTime,
+                UploadDurationMs = totalDuration,
+                UploadedBy = ""
+            };
+
+            if (successfulUploads.Count > 0)
+            {
+                return Result<BatchUploadResult>.Success(batchResult);
+            }
+
+            return Result<BatchUploadResult>.Failure(
+                $"All {files.Count} files failed to upload. See FailedUploads for details.");
+        }
+        catch (Exception ex)
+        {
+            return Result<BatchUploadResult>.Failure(
+                $"Critical error during batch upload: {ex.Message}");
+        }
     }
 }
 
-// private async Task RemoveExecutePermissionsAsync(string filePath)
+// public async Task RemoveExecutePermissionsAsync(string filePath)
 // {
 //     try
 //     {

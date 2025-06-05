@@ -38,4 +38,24 @@ public static class Helpers
             _ => "just now"
         };
     }
+
+    public static string FormatFileSize(long sizeInBytes)
+    {
+        if (sizeInBytes == 0)
+            return "0 B";
+
+        string[] units = { "B", "KB", "MB", "GB", "TB", "PB" };
+        double size = sizeInBytes;
+        int unitIndex = 0;
+
+        while (size >= 1024 && unitIndex < units.Length - 1)
+        {
+            size /= 1024;
+            unitIndex++;
+        }
+
+        return unitIndex == 0
+            ? $"{size:F0} {units[unitIndex]}"
+            : $"{size:F2} {units[unitIndex]}";
+    }
 }

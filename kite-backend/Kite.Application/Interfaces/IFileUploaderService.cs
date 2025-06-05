@@ -7,5 +7,5 @@ namespace Kite.Application.Interfaces;
 public interface IFileUploaderService
 {
     Task<Result<FileUploadResult>> UploadFileAsync(IFormFile file, CancellationToken cancellationToken);
-    Task<Result<List<FileUploadResult>>> UploadMultipleFilesAsync(IFormFileCollection files, CancellationToken cancellationToken);
+    Task<Result<BatchUploadResult>> UploadFilesAsync(IFormFileCollection files, CancellationToken cancellationToken);
 }
