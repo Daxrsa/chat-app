@@ -86,6 +86,12 @@ public static class FileUploadErrors
     public static Error DeletionFailed =>
         new Error("FileUpload.DeletionFailed", "Failed to delete the uploaded file.");
 
+    public static Error AntivirusScanFailed(string description) =>
+        new Error("FileUpload.AntivirusScanFailed", $"An unexpected error occurred during antivirus file scan {description}.");
+    
+    public static Error VirusDetected(string virusName) =>
+        new Error("FileUpload.VirusDetected", $"A virus has been detected during file scan: {virusName}.");
+    
     public static Error UnexpectedError =>
         new Error("FileUpload.UnexpectedError", "An unexpected error occurred during file upload.");
 }

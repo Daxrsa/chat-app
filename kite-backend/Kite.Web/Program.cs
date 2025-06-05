@@ -79,6 +79,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRealTimeNotificationSender, RealTimeNotificationSender>();
 builder.Services.AddScoped<INotificationHubContext, SignalRHubContext>();
 builder.Services.AddScoped<IFileUploaderService, FileUploaderService>();
+builder.Services.AddScoped<IAntivirusService, ClamAvService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();

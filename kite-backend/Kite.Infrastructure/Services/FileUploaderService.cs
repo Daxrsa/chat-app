@@ -8,7 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Kite.Infrastructure.Services;
 
-public class FileUploaderService : IFileUploaderService
+public class FileUploaderService(
+    IUserAccessor userAccessor,
+    IAntivirusService antivirusService) : IFileUploaderService
 {
     private static readonly string[] PermittedExtensions =
         { ".txt", ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".mp3", ".mp4", ".webp" };
@@ -35,18 +37,29 @@ public class FileUploaderService : IFileUploaderService
     public async Task<Result<FileUploadResult>> UploadFileAsync(IFormFile file,
         CancellationToken cancellationToken)
     {
-        // Virus scan placeholder (implement with your AV solution)
-        // var isClean = await MyAntivirusScanner.IsCleanAsync(file.OpenReadStream());
-        // if (!isClean) return Result<FileUploadResult>.Failure("FileUpload.VirusScan", "File failed virus scan.");
-
         try
         {
+            // var currentUserId = userAccessor.GetCurrentUserId();
+
             if (file == null || file.Length == 0)
                 return Result<FileUploadResult>.Failure(FileUploadErrors.NoFile);
 
             if (file.Length > FileSizeLimit)
                 return Result<FileUploadResult>.Failure(
                     FileUploadErrors.SizeExceededWithLimit(Helpers.FormatFileSize(FileSizeLimit)));
+            
+            var avScan = await antivirusService.ScanFileAsync(file);
+        
+            if (!avScan.IsSuccess)
+            {
+                return Result<FileUploadResult>.Failure(avScan.Errors.First().Description);
+            }
+        
+            if (!avScan.Value.IsClean)
+            {
+                return Result<FileUploadResult>.Failure(
+                    FileUploadErrors.VirusDetected(avScan.Value.VirusName));
+            }
 
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (string.IsNullOrEmpty(ext) || !PermittedExtensions.Contains(ext))
@@ -126,12 +139,13 @@ public class FileUploaderService : IFileUploaderService
                     {
                         successfulUploads.Add(uploadResult.Value);
                     }
-                    else 
+                    else
                     {
                         var failedUpload = new FailedUpload
                         {
                             FileName = file.FileName ?? "unknown",
-                            Reason = uploadResult.Errors.FirstOrDefault()?.Description ?? "Unknown error"
+                            Reason = uploadResult.Errors.FirstOrDefault()?.Description ??
+                                     "Unknown error"
                         };
                         failedUploads.Add(failedUpload);
                     }
@@ -170,7 +184,7 @@ public class FileUploaderService : IFileUploaderService
             }
 
             return Result<BatchUploadResult>.Failure(
-                $"All {files.Count} files failed to upload. See FailedUploads for details.");
+                $"{files.Count} file/s failed to upload. See FailedUploads for details.");
         }
         catch (Exception ex)
         {

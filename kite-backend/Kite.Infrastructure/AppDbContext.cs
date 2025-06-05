@@ -6,13 +6,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kite.Infrastructure;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration) 
+public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration configuration)
     : IdentityDbContext<ApplicationUser>(options)
 {
-    
     public DbSet<Friendship> Friendships { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<FriendRequest> FriendRequests { get; set; }
+    public DbSet<ApplicationFile> Files { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -77,35 +77,45 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
             entity.Property(e => e.FriendRequestId).HasColumnType("uuid");
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
         });
-        
+
         modelBuilder.Entity<Notification>(entity =>
         {
             entity.HasKey(e => e.Id);
-            
+
             entity.HasOne(n => n.Receiver)
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(n => n.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict) 
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             entity.HasOne(n => n.Sender)
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(n => n.SenderId)
-                .OnDelete(DeleteBehavior.Restrict) 
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             entity.Property(n => n.Message)
                 .IsRequired();
-              
+
             entity.Property(n => n.Type)
                 .IsRequired();
-              
+
             entity.Property(n => n.IsRead)
                 .HasDefaultValue(false);
-            
+
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
-            
+
             entity.Property(e => e.ReadAt).HasColumnType("timestamptz");
+        });
+
+        modelBuilder.Entity<ApplicationFile>(entity =>
+        {
+            entity.HasOne(f => f.User)
+                .WithMany(u => u.Files)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.Property(e => e.UploadedAt).HasColumnType("timestamptz");
         });
     }
 }
