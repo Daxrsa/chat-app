@@ -54,7 +54,6 @@ public class AuthService(
                 LastName = user.LastName,
                 UserName = user.UserName,
                 Role = roles.FirstOrDefault() ?? "None",
-                ImageUrl = user.ImageUrl,
                 CreatedAt = user.CreatedAt
             };
 
@@ -104,7 +103,6 @@ public class AuthService(
                 UserName = user.UserName,
                 Token = token,
                 Role = roles.FirstOrDefault() ?? "None",
-                ImageUrl = user.ImageUrl,
                 CreatedAt = user.CreatedAt
             };
 

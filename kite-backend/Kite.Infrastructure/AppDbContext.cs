@@ -42,7 +42,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
         {
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.ImageUrl).HasMaxLength(2048);
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
         });
 

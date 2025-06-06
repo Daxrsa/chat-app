@@ -258,7 +258,6 @@ public class FriendRequestService(
                         SenderFirstName = sender.FirstName,
                         SenderLastName = sender.LastName,
                         SenderUsername = sender.UserName,
-                        SenderImageUrl = sender.ImageUrl,
                         Status = request.Status
                     });
                 }
@@ -298,7 +297,6 @@ public class FriendRequestService(
                         ReceiverFirstName = receiver.FirstName,
                         ReceiverLastName = receiver.LastName,
                         ReceiverUsername = receiver.UserName,
-                        ReceiverImageUrl = receiver.ImageUrl,
                         CreatedAt = request.CreatedAt,
                         Status = request.Status,
                         TimeElapsed = Helpers.GetTimeElapsedString(request.CreatedAt)

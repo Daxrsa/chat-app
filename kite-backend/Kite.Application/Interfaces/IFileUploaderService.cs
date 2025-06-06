@@ -9,4 +9,5 @@ public interface IFileUploaderService
 {
     Task<Result<FileUploadResult>> UploadFileAsync(IFormFile file, FileType type, CancellationToken cancellationToken);
     Task<Result<BatchUploadResult>> UploadFilesAsync(IFormFileCollection files, FileType type, CancellationToken cancellationToken);
+    Task<Result<FileDeleteResult>> DeleteFileAsync(Guid fileId, CancellationToken cancellationToken);
 }

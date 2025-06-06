@@ -102,8 +102,7 @@ public class FriendshipService(
                         UserName = friendUser.UserName,
                         FirstName = friendUser.FirstName,
                         LastName = friendUser.LastName,
-                        Email = friendUser.Email,
-                        ImageUrl = friendUser.ImageUrl,
+                        Email = friendUser.Email
                     });
                 }
             }

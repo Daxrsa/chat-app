@@ -10,8 +10,11 @@ public class FileController(IFileUploaderService fileUploaderService) : BaseApiC
     public async Task<IActionResult> UploadFileAsync(IFormFile file, FileType type, CancellationToken cancellationToken)
         => HandleResult(await fileUploaderService.UploadFileAsync(file,type, cancellationToken));
     
-    // needs more testing
     [HttpPost("upload-files")]
     public async Task<IActionResult> UploadFilesAsync(IFormFileCollection files, FileType type, CancellationToken cancellationToken)
         => HandleResult(await fileUploaderService.UploadFilesAsync(files, type, cancellationToken));
+    
+    [HttpDelete("{fileId:guid}")]
+    public async Task<IActionResult> DeleteFile(Guid fileId, CancellationToken cancellationToken)
+        => HandleResult(await fileUploaderService.DeleteFileAsync(fileId, cancellationToken));
 }

@@ -44,7 +44,6 @@ public class UserAccessor(
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Role = roles.FirstOrDefault() ?? "None",
-                ImageUrl = user.ImageUrl,
                 CreatedAt = user.CreatedAt
             };
 
@@ -84,7 +83,6 @@ public class UserAccessor(
                     Email = user.Email,
                     Token = "",
                     Role = role,
-                    ImageUrl = user.ImageUrl ?? "",
                     CreatedAt = user.CreatedAt
                 };
                 userModels.Add(userModel);
