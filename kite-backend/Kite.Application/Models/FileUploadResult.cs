@@ -1,3 +1,5 @@
+using Kite.Domain.Enums;
+
 namespace Kite.Application.Models;
 
 public class FileUploadResult
@@ -9,4 +11,5 @@ public class FileUploadResult
     public string FileSize { get; set; } = string.Empty;
     public DateTimeOffset UploadedAt { get; set; }
     public string UploadedBy { get; set; } = string.Empty;
+    public FileType Type { get; set; }
 }

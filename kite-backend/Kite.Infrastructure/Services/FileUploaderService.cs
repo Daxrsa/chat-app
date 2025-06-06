@@ -4,9 +4,9 @@ using Kite.Application.Models;
 using Kite.Application.Utilities;
 using Kite.Domain.Common;
 using Kite.Domain.Entities;
+using Kite.Domain.Enums;
 using Kite.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Kite.Infrastructure.Services;
 
@@ -38,7 +38,7 @@ public class FileUploaderService(
         { ".pdf", "documents" }
     };
 
-    public async Task<Result<FileUploadResult>> UploadFileAsync(IFormFile file,
+    public async Task<Result<FileUploadResult>> UploadFileAsync(IFormFile file, FileType type,
         CancellationToken cancellationToken)
     {
         try
@@ -95,7 +95,8 @@ public class FileUploaderService(
                 FilePath = finalPath,
                 FileSize = fileSize,
                 UploadedAt = DateTime.UtcNow,
-                UploadedBy = currentUserId
+                UploadedBy = currentUserId,
+                Type = type
             };
 
             var fileInDb = new ApplicationFile
@@ -104,7 +105,8 @@ public class FileUploaderService(
                 Extension = ext,
                 Size = fileSize,
                 UserId = currentUserId,
-                UploadedAt = DateTimeOffset.UtcNow
+                UploadedAt = DateTimeOffset.UtcNow,
+                Type = type
             };
 
             await fileRepository.InsertAsync(fileInDb, cancellationToken);
@@ -131,6 +133,7 @@ public class FileUploaderService(
 
     public async Task<Result<BatchUploadResult>> UploadFilesAsync(
         IFormFileCollection files,
+        FileType type,
         CancellationToken cancellationToken)
     {
         try
@@ -152,7 +155,7 @@ public class FileUploaderService(
 
                 try
                 {
-                    var uploadResult = await UploadFileAsync(file, cancellationToken);
+                    var uploadResult = await UploadFileAsync(file,type, cancellationToken);
 
                     if (uploadResult.IsSuccess)
                     {
