@@ -4,7 +4,7 @@ public enum FileType
 {
     ProfilePicture,
     Message,
-    // Post,
+    Post,
     // Comment,
     // Reply
 }

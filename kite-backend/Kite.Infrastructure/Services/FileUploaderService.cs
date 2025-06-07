@@ -32,10 +32,61 @@ public class FileUploaderService(
         { ".png", "images" },
         { ".gif", "images" },
         { ".webp", "images" },
+        { ".bmp", "images" },
+        { ".svg", "images" },
+        { ".ico", "images" },
+        { ".tiff", "images" },
+        { ".tif", "images" },
+        { ".heic", "images" },
+        { ".heif", "images" },
+        { ".avif", "images" },
         { ".mp3", "audio" },
+        { ".wav", "audio" },
+        { ".flac", "audio" },
+        { ".aac", "audio" },
+        { ".ogg", "audio" },
+        { ".wma", "audio" },
+        { ".m4a", "audio" },
         { ".mp4", "video" },
+        { ".avi", "video" },
+        { ".mov", "video" },
+        { ".wmv", "video" },
+        { ".flv", "video" },
+        { ".webm", "video" },
+        { ".mkv", "video" },
+        { ".m4v", "video" },
+        { ".3gp", "video" },
         { ".txt", "documents" },
-        { ".pdf", "documents" }
+        { ".pdf", "documents" },
+        { ".doc", "documents" },
+        { ".docx", "documents" },
+        { ".xls", "documents" },
+        { ".xlsx", "documents" },
+        { ".ppt", "documents" },
+        { ".pptx", "documents" },
+        { ".rtf", "documents" },
+        { ".odt", "documents" },
+        { ".ods", "documents" },
+        { ".odp", "documents" },
+        { ".zip", "archives" },
+        { ".rar", "archives" },
+        { ".7z", "archives" },
+        { ".tar", "archives" },
+        { ".gz", "archives" },
+        { ".bz2", "archives" },
+        { ".json", "code" },
+        { ".xml", "code" },
+        { ".html", "code" },
+        { ".css", "code" },
+        { ".js", "code" },
+        { ".ts", "code" },
+        { ".cs", "code" },
+        { ".java", "code" },
+        { ".py", "code" },
+        { ".cpp", "code" },
+        { ".c", "code" },
+        { ".php", "code" },
+        { ".sql", "code" }
     };
 
     public async Task<Result<FileUploadResult>> UploadFileAsync(IFormFile file, FileType type,
@@ -44,7 +95,7 @@ public class FileUploaderService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
-            
+
             if (string.IsNullOrEmpty(currentUserId))
             {
                 return Result<FileUploadResult>.Failure(
@@ -146,7 +197,7 @@ public class FileUploaderService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
-            
+
             if (string.IsNullOrEmpty(currentUserId))
             {
                 return Result<BatchUploadResult>.Failure(
@@ -229,13 +280,13 @@ public class FileUploaderService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
-            
+
             if (string.IsNullOrEmpty(currentUserId))
             {
                 return Result<FileDeleteResult>.Failure(
                     new Error("Auth.UserNotFound", "Current user ID could not be determined."));
             }
-            
+
             var fileEntity = await fileRepository.GetByIdAsync(fileId, cancellationToken);
             if (fileEntity == null)
             {
