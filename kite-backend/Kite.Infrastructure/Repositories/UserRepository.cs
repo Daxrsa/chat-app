@@ -10,14 +10,26 @@ public class UserRepository : GenericRepository<ApplicationUser, string>, IUserR
     public UserRepository(AppDbContext context) : base(context)
     {
     }
-
-    public async Task<ApplicationUser> GetUserWithProfilePictureAsync(string userId,
-        CancellationToken cancellationToken = default)
-    {
-        return await _dbSet
-            .Include(u => u.Files.Where(f => f.Type == FileType.ProfilePicture)
-                .OrderByDescending(f => f.UploadedAt)
-                .Take(1))
-            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-    }
+    
+    // public async Task<ApplicationUser?> GetUserAndRelatedEntitiesAsync(string userId, CancellationToken cancellationToken = default)
+    // {
+    //     return await _dbSet
+    //         .Include(u => u.Files.Where(f => f.Type == FileType.ProfilePicture)
+    //             .OrderByDescending(f => f.UploadedAt)
+    //             .Take(1))
+    //         .Include(u => u.UserRoles)
+    //         .ThenInclude(ur => ur.Role)
+    //         .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+    // }
+    //
+    // public async Task<List<ApplicationUser>> GetUsersAndRelatedEntitiesAsync(CancellationToken cancellationToken = default)
+    // {
+    //     return await _dbSet
+    //         .Include(u => u.Files.Where(f => f.Type == FileType.ProfilePicture)
+    //             .OrderByDescending(f => f.UploadedAt)
+    //             .Take(1))
+    //         .Include(u => u.UserRoles)
+    //         .ThenInclude(ur => ur.Role)
+    //         .ToListAsync(cancellationToken);
+    // }
 }

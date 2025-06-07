@@ -71,7 +71,7 @@ public class FriendRequestService(
                 SenderId = currentUserId,
                 ReceiverId = targetUserId,
                 Message =
-                    $"You have received a friend request from {userAccessor.GetUserFirstName()} {userAccessor.GetUserLastName()}",
+                    $"You have received a friend request from {userAccessor.GetCurrentUserFirstName()} {userAccessor.GetCurrentUserLastName()}",
                 Type = NotificationType.FriendRequest,
                 IsRead = false,
                 CreatedAt = DateTimeOffset.UtcNow

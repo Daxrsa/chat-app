@@ -7,9 +7,16 @@ namespace Kite.Application.Interfaces;
 
 public interface IUserAccessor
 {
-    Task<Result<UserModel>> GetCurrentUserAsync();
-    string GetCurrentUserId();
-    string GetUserFirstName();
-    string GetUserLastName();
-    Task<Result<List<UserModel>>> GetAllUsersAsync();
+    string? GetCurrentUserId();
+    string? GetCurrentUserName();
+    string? GetCurrentUserEmail();
+    string? GetCurrentUserFirstName();
+    string? GetCurrentUserLastName();
+    ClaimsPrincipal? GetCurrentUser();
+    bool IsAuthenticated();
+    bool HasClaim(string claimType, string claimValue);
+    IEnumerable<string> GetUserRoles();
+    bool IsInRole(string role);
+    string? GetClaimValue(string claimType);
+    Dictionary<string, string> GetAllClaims();
 }

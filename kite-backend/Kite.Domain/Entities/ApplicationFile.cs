@@ -9,6 +9,7 @@ public class ApplicationFile : IEntity<Guid>
     public string Filename { get; set; } = string.Empty;
     public string Extension { get; set; } = string.Empty;
     public string Size { get; set; } = string.Empty;
+    public string DiskFilePath { get; set; } = string.Empty;
     public FileType Type { get; set; }
     public string UserId { get; set; } = string.Empty;
     public ApplicationUser User { get; set; } 

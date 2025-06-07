@@ -16,4 +16,16 @@ public class AuthController(IAuthService authService) : BaseApiController
     [HttpPost("login-user")]
     public async Task<IActionResult> Login(LoginModel model)
         => HandleResult(await authService.LoginAsync(model));
+    
+    [HttpGet("get-logged-in-user")]
+    public async Task<IActionResult> GetCurrentUserAsync(CancellationToken cancellationToken)
+        => HandleResult(await authService.GetCurrentUserAsync(cancellationToken));
+    
+    [HttpGet("get-all-users")]
+    public async Task<IActionResult> GetAllUsersAsync(CancellationToken cancellationToken)
+        => HandleResult(await authService.GetAllUsersAsync(cancellationToken));
+    
+    [HttpDelete("delete-user-by-email")]
+    public async Task<IActionResult> DeleteUserByEmail(string email)
+        => HandleResult(await authService.DeleteUserByEmail(email));
 }

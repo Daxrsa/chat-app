@@ -29,6 +29,10 @@ namespace Kite.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("DiskFilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Extension")
                         .IsRequired()
                         .HasColumnType("text");
@@ -84,10 +88,6 @@ namespace Kite.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
 
                     b.Property<string>("LastName")
                         .IsRequired()

@@ -2,13 +2,18 @@ using Kite.Application.Interfaces;
 using Kite.Application.Models;
 using Kite.Domain.Common;
 using Kite.Domain.Entities;
+using Kite.Domain.Enums;
+using Kite.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kite.Application.Services;
 
 public class AuthService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
+    IUserAccessor userAccessor,
+    IApplicationFileRepository applicationFileRepository,
     ITokenService tokenService) : IAuthService
 {
     public async Task<Result<UserModel>> RegisterAsync(RegisterModel model)
@@ -145,6 +150,84 @@ public class AuthService(
         {
             return Result<string>.Failure(new Error("DeleteUser.Exception",
                 $"An error occurred while deleting user: {ex.Message}"));
+        }
+    }
+
+    public async Task<Result<List<UserModel>>> GetAllUsersAsync(
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var applicationUsers = await userManager.Users.ToListAsync(cancellationToken);
+
+            var userModels = await Task.WhenAll(
+                applicationUsers.Select(async user => new UserModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    UserName = user.UserName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ?? "",
+                    ProfilePicture = "",
+                    CreatedAt = user.CreatedAt
+                })
+            );
+
+            var userModelsList = userModels.ToList();
+
+            return Result<List<UserModel>>.Success(userModelsList);
+        }
+        catch (Exception ex)
+        {
+            return Result<List<UserModel>>.Failure(
+                new Error("Authentication.Exception",
+                    $"An error occurred while getting all users: {ex.Message}"));
+        }
+    }
+
+    public async Task<Result<UserModel>> GetCurrentUserAsync(
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var currentUserId = userAccessor.GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<UserModel>.Failure(
+                    new Error("Auth.NotAuthenticated", "User is not authenticated."));
+            }
+
+            var user = await userManager.FindByIdAsync(currentUserId);
+            if (user == null)
+            {
+                return Result<UserModel>.Failure(
+                    new Error("User.NotFound", "User account not found."));
+            }
+
+            var role = await userManager.GetRolesAsync(user);
+            var profilePicture =
+                await applicationFileRepository.GetLatestUserFileByTypeAsync(currentUserId,
+                    FileType.ProfilePicture, cancellationToken);
+
+            var userModel = new UserModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                UserName = user.UserName,
+                LastName = user.LastName,
+                CreatedAt = user.CreatedAt,
+                ProfilePicture = profilePicture.DiskFilePath,
+                Role = role.FirstOrDefault() ?? ""
+            };
+
+            return Result<UserModel>.Success(userModel);
+        }
+        catch (Exception ex)
+        {
+            return Result<UserModel>.Failure(
+                new Error("User.RetrievalError", $"Error retrieving current user: {ex.Message}"));
         }
     }
 }

@@ -111,6 +111,7 @@ public class FileUploaderService(
                 Extension = ext,
                 Size = fileSize,
                 UserId = currentUserId,
+                DiskFilePath = finalPath,
                 UploadedAt = DateTimeOffset.UtcNow,
                 Type = type
             };

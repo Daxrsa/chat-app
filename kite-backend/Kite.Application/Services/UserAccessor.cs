@@ -10,101 +10,91 @@ using Microsoft.EntityFrameworkCore;
 namespace Kite.Application.Services;
 
 public class UserAccessor(
-    IHttpContextAccessor httpContextAccessor,
-    UserManager<ApplicationUser> userManager) : IUserAccessor
+    IHttpContextAccessor httpContextAccessor) : IUserAccessor
 {
-    private ClaimsPrincipal GetCurrentClaimsPrincipal()
+    public string? GetCurrentUserId()
+    {
+        var user = GetCurrentUser();
+        return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+               ?? user?.FindFirst("sub")?.Value
+               ?? user?.FindFirst("id")?.Value;
+    }
+
+    public string? GetCurrentUserName()
+    {
+        var user = GetCurrentUser();
+        return user?.FindFirst(ClaimTypes.Name)?.Value
+               ?? user?.FindFirst("username")?.Value;
+    }
+
+    public string? GetCurrentUserFirstName()
+    {
+        var user = GetCurrentUser();
+        return user?.FindFirst(ClaimTypes.GivenName)?.Value
+               ?? user?.FindFirst("firstname")?.Value;
+    }
+
+    public string? GetCurrentUserLastName()
+    {
+        var user = GetCurrentUser();
+        return user?.FindFirst(ClaimTypes.Surname)?.Value
+               ?? user?.FindFirst("lastname")?.Value;
+    }
+
+    public string? GetCurrentUserEmail()
+    {
+        var user = GetCurrentUser();
+        return user?.FindFirst(ClaimTypes.Email)?.Value
+               ?? user?.FindFirst("email")?.Value;
+    }
+
+    public ClaimsPrincipal? GetCurrentUser()
     {
         return httpContextAccessor.HttpContext?.User;
     }
 
-    public async Task<Result<UserModel>> GetCurrentUserAsync()
+    public bool IsAuthenticated()
     {
-        try
-        {
-            var principal = GetCurrentClaimsPrincipal();
-            if (principal == null)
-            {
-                return Result<UserModel>.Failure(UserErrors.NoPrincipal);
-            }
-
-            var user = await userManager.GetUserAsync(principal);
-            if (user == null)
-            {
-                return Result<UserModel>.Failure(UserErrors.NotFound);
-            }
-
-            var roles = await userManager.GetRolesAsync(user);
-
-            var userModel = new UserModel
-            {
-                Id = user.Id,
-                Email = user.Email,
-                UserName = user.UserName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Role = roles.FirstOrDefault() ?? "None",
-                CreatedAt = user.CreatedAt
-            };
-
-            return Result<UserModel>.Success(userModel);
-        }
-        catch (Exception ex)
-        {
-            return Result<UserModel>.Failure(
-                new Error("Authentication.Exception",
-                    $"An error occurred while getting the current user: {ex.Message}"));
-        }
+        var user = GetCurrentUser();
+        return user?.Identity?.IsAuthenticated ?? false;
     }
 
-    public string GetCurrentUserId()
+    public bool HasClaim(string claimType, string claimValue)
     {
-        return httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = GetCurrentUser();
+        return user?.HasClaim(claimType, claimValue) ?? false;
     }
-    
-    public async Task<Result<List<UserModel>>> GetAllUsersAsync()
+
+    public IEnumerable<string> GetUserRoles()
     {
-        try
-        {
-            var applicationUsers = await userManager.Users.ToListAsync();
-            var userModels = new List<UserModel>();
-        
-            foreach (var user in applicationUsers)
-            {
-                var roles = await userManager.GetRolesAsync(user);
-                var role = roles.FirstOrDefault() ?? ""; 
-                
-                var userModel = new UserModel
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName, 
-                    UserName = user.UserName,
-                    LastName = user.LastName,  
-                    Email = user.Email,
-                    Token = "",
-                    Role = role,
-                    CreatedAt = user.CreatedAt
-                };
-                userModels.Add(userModel);
-            }
-            
-            return Result<List<UserModel>>.Success(userModels);
-        }
-        catch (Exception ex)
-        {
-            return Result<List<UserModel>>.Failure(
-                new Error("Authentication.Exception",
-                    $"An error occurred while getting all users: {ex.Message}"));
-        }
+        var user = GetCurrentUser();
+        if (user == null) return Enumerable.Empty<string>();
+
+        return user.FindAll(ClaimTypes.Role)
+            .Select(c => c.Value)
+            .Union(user.FindAll("role").Select(c => c.Value))
+            .Distinct();
     }
-    
-    public string GetUserFirstName()
+
+    public bool IsInRole(string role)
     {
-        return httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.GivenName);
+        var user = GetCurrentUser();
+        return user?.IsInRole(role) ?? false;
     }
-    
-    public string GetUserLastName()
+
+    public string? GetClaimValue(string claimType)
     {
-        return httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Surname);
+        var user = GetCurrentUser();
+        return user?.FindFirst(claimType)?.Value;
+    }
+
+    public Dictionary<string, string> GetAllClaims()
+    {
+        var user = GetCurrentUser();
+        if (user == null) return new Dictionary<string, string>();
+
+        return user.Claims
+            .GroupBy(c => c.Type)
+            .ToDictionary(g => g.Key, g => g.First().Value);
     }
 }

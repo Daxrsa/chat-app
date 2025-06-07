@@ -17,4 +17,8 @@ public class FileController(IFileUploaderService fileUploaderService) : BaseApiC
     [HttpDelete("{fileId:guid}")]
     public async Task<IActionResult> DeleteFile(Guid fileId, CancellationToken cancellationToken)
         => HandleResult(await fileUploaderService.DeleteFileAsync(fileId, cancellationToken));
+    
+    [HttpPost("upload-profile-picture")]
+    public async Task<IActionResult> UploadProfilePicture(IFormFile file, CancellationToken cancellationToken)
+        => HandleResult(await fileUploaderService.UploadFileAsync(file, FileType.ProfilePicture, cancellationToken));
 }
