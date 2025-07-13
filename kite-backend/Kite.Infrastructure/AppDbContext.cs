@@ -116,5 +116,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
                 .OnDelete(DeleteBehavior.Cascade);
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
         });
+        
+        modelBuilder.Entity<ApplicationFile>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(f => f.Post)
+                .WithMany(p => p.Files)
+                .HasForeignKey(f => f.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(e => e.UploadedAt).HasColumnType("timestamptz");
+        });
     }
 }

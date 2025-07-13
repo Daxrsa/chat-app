@@ -10,7 +10,7 @@ public class BatchUploadResult
     public int SuccessCount { get; set; }
     public int FailureCount { get; set; }
     public bool IsPartialSuccess { get; set; }
-    public bool IsCompleteSuccess => FailureCount == 0;
+    private bool IsCompleteSuccess => FailureCount == 0;
     public DateTime UploadedAt { get; set; }
     public DateTime CompletedAt { get; set; }
     public double UploadDurationMs { get; set; }

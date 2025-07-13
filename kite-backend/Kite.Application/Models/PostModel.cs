@@ -13,7 +13,7 @@ public class PostModel
     public string UserId { get; set; } = string.Empty;
     public string AuthorFirstName { get; set; } = string.Empty;
     public string AuthorLastName { get; set; } = string.Empty;
-    public string AuthorUsername { get; set; } = string.Empty;
+    public string AuthorUserName { get; set; } = string.Empty;
     public string? AuthorProfilePicture { get; set; }
     public int LikeCount { get; set; }
     public int CommentCount { get; set; }
@@ -21,9 +21,9 @@ public class PostModel
     public bool IsLikedByCurrentUser { get; set; }
     public List<string>? Hashtags { get; set; } = new();
     public List<string>? MentionedUsers { get; set; } = new();
-    public List<AttachedFileModel> AttachedFiles { get; set; } = new();
-    public string TimeElapsed => Helpers.GetTimeElapsedString(CreatedAt);
+    public List<AttachedFileModel> Files { get; set; } = new();
+    public string TimeElapsed { get; set; } = string.Empty;
     public PostVisibility Visibility { get; set; } = PostVisibility.Public;
-    public bool IsEdited { get; set; }
-    public bool IsHidden { get; set; }
+    public bool IsEdited { get; set; } 
+    public bool IsHidden { get; set; } 
 }

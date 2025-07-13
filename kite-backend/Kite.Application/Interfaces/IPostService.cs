@@ -7,13 +7,14 @@ namespace Kite.Application.Interfaces;
 public interface IPostService
 {
     Task<Result<PostModel>> CreatePostAsync(CreatePostRequest request, CancellationToken cancellationToken = default);
-    Task<Result<PostModel>> GetPostByIdAsync(Guid postId, CancellationToken cancellationToken = default);
+    Task<Result<List<PostModel>>> GetPostsForCurrentUserAsync(CancellationToken cancellationToken = default);
+    Task<Result<List<PostModel>>> GetPostsForUserAsync(string userId, CancellationToken cancellationToken = default);
+    Task<Result<PostModel>> GetSinglePostAsync(Guid postId, CancellationToken cancellationToken = default);
     Task<Result<PostModel>> UpdatePostAsync(Guid postId, UpdatePostRequest request, CancellationToken cancellationToken = default);
     Task<Result<bool>> DeletePostAsync(Guid postId, CancellationToken cancellationToken = default);
 
     // // Feed and discovery
     // Task<Result<List<PostModel>>> GetUserFeedAsync(CancellationToken cancellationToken = default);
-    // Task<Result<List<PostModel>>> GetUserPostsAsync(string userId, CancellationToken cancellationToken = default);
     // Task<Result<List<PostModel>>> GetPublicFeedAsync(CancellationToken cancellationToken = default);
     //
     // // Search and filtering

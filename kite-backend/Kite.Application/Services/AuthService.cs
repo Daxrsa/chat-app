@@ -218,7 +218,7 @@ public class AuthService(
                 UserName = user.UserName,
                 LastName = user.LastName,
                 CreatedAt = user.CreatedAt,
-                ProfilePicture = profilePicture.DiskFilePath,
+                ProfilePicture = profilePicture.FilePath,
                 Role = role.FirstOrDefault() ?? ""
             };
 

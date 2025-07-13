@@ -1,4 +1,5 @@
 using Kite.Application.Interfaces;
+using Kite.Application.Mappings;
 using Kite.Application.Services;
 using Kite.Domain.Entities;
 using Kite.Domain.Interfaces;
@@ -90,7 +91,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IApplicationFileRepository, ApplicationFileRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddCors(options =>

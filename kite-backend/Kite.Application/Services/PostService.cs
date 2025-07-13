@@ -1,8 +1,11 @@
+using AutoMapper;
 using Kite.Application.Interfaces;
 using Kite.Application.Models;
 using Kite.Application.Models.Post;
+using Kite.Application.Utilities;
 using Kite.Domain.Common;
 using Kite.Domain.Entities;
+using Kite.Domain.Enums;
 using Kite.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
@@ -11,7 +14,11 @@ namespace Kite.Application.Services;
 public class PostService(
     IUserAccessor userAccessor,
     UserManager<ApplicationUser> userManager,
-    IPostRepository postRepository) : IPostService
+    IPostRepository postRepository,
+    IApplicationFileRepository applicationFileRepository,
+    IFileUploaderService fileUploaderService,
+    IUnitOfWork unitOfWork,
+    IMapper mapper) : IPostService
 {
     public async Task<Result<PostModel>> CreatePostAsync(CreatePostRequest request,
         CancellationToken cancellationToken = default)
@@ -19,7 +26,6 @@ public class PostService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
-
             if (string.IsNullOrEmpty(currentUserId))
             {
                 return Result<PostModel>.Failure(new Error("Auth.Unauthorized",
@@ -32,6 +38,9 @@ public class PostService(
                 return Result<PostModel>.Failure(new Error("User.NotFound", "User not found"));
             }
 
+            // var files = await fileUploaderService.UploadFilesAsync(request.AttachedFiles,
+            //     FileType.Post, cancellationToken);
+
             var post = new Post
             {
                 Id = Guid.NewGuid(),
@@ -39,13 +48,12 @@ public class PostService(
                 Body = request.Body,
                 CreatedAt = DateTimeOffset.UtcNow,
                 UserId = currentUserId,
-                User = user
+                TimeElapsed = Helpers.GetTimeElapsedString(DateTimeOffset.UtcNow),
+                // Files = files,
             };
 
-            // Add to repository
-            await postRepository.InsertAsync(post, cancellationToken);
-
-            // Convert to model and return
+            var authorProfilePicture = await applicationFileRepository.GetLatestUserFileByTypeAsync(currentUserId, FileType.Post ,cancellationToken);
+            
             var postModel = new PostModel
             {
                 Id = post.Id,
@@ -55,8 +63,8 @@ public class PostService(
                 UserId = post.UserId,
                 AuthorFirstName = user.FirstName,
                 AuthorLastName = user.LastName,
-                AuthorUsername = user.UserName,
-                AuthorProfilePicture = null, // TODO: Get from user's files
+                AuthorUserName = user.UserName,
+                AuthorProfilePicture = authorProfilePicture.FilePath,
                 Visibility = request.Visibility,
                 Hashtags = request.Hashtags,
                 MentionedUsers = request.MentionedUsers,
@@ -66,30 +74,70 @@ public class PostService(
                 IsLikedByCurrentUser = false,
                 IsEdited = false,
                 IsHidden = false,
-                AttachedFiles = ""
+                // AttachedFiles = post.Files,
+                TimeElapsed = Helpers.GetTimeElapsedString(post.CreatedAt)
             };
+            
+            await postRepository.InsertAsync(post, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<PostModel>.Success(postModel);
         }
         catch (Exception ex)
         {
-            return Result<PostModel>.Failure(new Error("Post.CreateFailed",
+            return Result<PostModel>.Failure(new Error("Post.CreationFailed",
                 $"Failed to create post: {ex.Message}"));
         }
     }
-
-    public Task<Result<PostModel>> GetPostByIdAsync(Guid postId, CancellationToken cancellationToken = default)
+    
+    public async Task<Result<List<PostModel>>> GetPostsForCurrentUserAsync(CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var currentUserId = userAccessor.GetCurrentUserId();
+        
+        var posts = await postRepository.GetPostsForUserAsync(currentUserId, cancellationToken);
+        if (posts == null)
+        {
+            return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
+        }
+        
+        var postModels = mapper.Map<List<PostModel>>(posts);
+        
+        return Result<List<PostModel>>.Success(postModels);
     }
 
-    public Task<Result<PostModel>> UpdatePostAsync(Guid postId, UpdatePostRequest request,
+    public async Task<Result<List<PostModel>>> GetPostsForUserAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var posts = await postRepository.GetPostsForUserAsync(userId, cancellationToken);
+        if (posts == null)
+        {
+            return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
+        }
+        
+        var postModels = mapper.Map<List<PostModel>>(posts);
+        
+        return Result<List<PostModel>>.Success(postModels);
+    }
+
+    public async Task<Result<PostModel>> GetSinglePostAsync(Guid postId, CancellationToken cancellationToken = default)
+    {
+        var post = await postRepository.GetByIdAsync(postId, cancellationToken);
+        if (post == null)
+        {
+            return Result<PostModel>.Failure(new Error("Post.NotFound", "Post not found"));
+        }
+
+        var postModel = mapper.Map<PostModel>(post);
+
+        return Result<PostModel>.Success(postModel);
+    }
+
+    public async Task<Result<PostModel>> UpdatePostAsync(Guid postId, UpdatePostRequest request,
         CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Result<bool>> DeletePostAsync(Guid postId, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> DeletePostAsync(Guid postId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
