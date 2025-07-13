@@ -4,6 +4,7 @@ using Kite.Application.Services;
 using Kite.Domain.Entities;
 using Kite.Domain.Interfaces;
 using Kite.Infrastructure;
+using Kite.Infrastructure.Middleware;
 using Kite.Infrastructure.Repositories;
 using Kite.Infrastructure.Services;
 using Kite.Web.Extensions;
@@ -132,6 +133,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Kite API v1"));
 }
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseCors("AllowSpecificOrigin");
 app.UseRouting();
 app.UseAuthentication();
