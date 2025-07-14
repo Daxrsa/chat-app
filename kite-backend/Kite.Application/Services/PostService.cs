@@ -23,105 +23,102 @@ public class PostService(
     public async Task<Result<PostModel>> CreatePostAsync(CreatePostRequest request,
         CancellationToken cancellationToken = default)
     {
-        try
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrEmpty(currentUserId))
         {
-            var currentUserId = userAccessor.GetCurrentUserId();
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Result<PostModel>.Failure(new Error("Auth.Unauthorized",
-                    "User must be authenticated to create posts"));
-            }
-
-            var user = await userManager.FindByIdAsync(currentUserId);
-            if (user == null)
-            {
-                return Result<PostModel>.Failure(new Error("User.NotFound", "User not found"));
-            }
-
-            // var files = await fileUploaderService.UploadFilesAsync(request.AttachedFiles,
-            //     FileType.Post, cancellationToken);
-
-            var post = new Post
-            {
-                Id = Guid.NewGuid(),
-                Title = request.Title,
-                Body = request.Body,
-                CreatedAt = DateTimeOffset.UtcNow,
-                UserId = currentUserId,
-                TimeElapsed = Helpers.GetTimeElapsedString(DateTimeOffset.UtcNow),
-                // Files = files,
-            };
-
-            var authorProfilePicture = await applicationFileRepository.GetLatestUserFileByTypeAsync(currentUserId, FileType.Post ,cancellationToken);
-            
-            var postModel = new PostModel
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Body = post.Body,
-                CreatedAt = post.CreatedAt,
-                UserId = post.UserId,
-                AuthorFirstName = user.FirstName,
-                AuthorLastName = user.LastName,
-                AuthorUserName = user.UserName,
-                AuthorProfilePicture = authorProfilePicture.FilePath,
-                Visibility = request.Visibility,
-                Hashtags = request.Hashtags,
-                MentionedUsers = request.MentionedUsers,
-                LikeCount = 0,
-                CommentCount = 0,
-                ShareCount = 0,
-                IsLikedByCurrentUser = false,
-                IsEdited = false,
-                IsHidden = false,
-                // AttachedFiles = post.Files,
-                TimeElapsed = Helpers.GetTimeElapsedString(post.CreatedAt)
-            };
-            
-            await postRepository.InsertAsync(post, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result<PostModel>.Success(postModel);
+            return Result<PostModel>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated to create posts"));
         }
-        catch (Exception ex)
+
+        var user = await userManager.FindByIdAsync(currentUserId);
+        if (user == null)
         {
-            return Result<PostModel>.Failure(new Error("Post.CreationFailed",
-                $"Failed to create post: {ex.Message}"));
+            return Result<PostModel>.Failure(new Error("User.NotFound", "User not found"));
         }
+
+        var files = await fileUploaderService.UploadFilesAsync(request.AttachedFiles,
+            FileType.Post, cancellationToken);
+
+        var post = new Post
+        {
+            Id = Guid.NewGuid(),
+            Title = request.Title,
+            Body = request.Body,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UserId = currentUserId,
+            TimeElapsed = Helpers.GetTimeElapsedString(DateTimeOffset.UtcNow),
+            Files = files, //Files is an ApplicationFile object, files is a BatchUploadResult object
+        };
+
+        var authorProfilePicture =
+            await applicationFileRepository.GetLatestUserFileByTypeAsync(currentUserId,
+                FileType.Post, cancellationToken);
+
+        var postModel = new PostModel
+        {
+            Id = post.Id,
+            Title = post.Title,
+            Body = post.Body,
+            CreatedAt = post.CreatedAt,
+            UserId = post.UserId,
+            AuthorFirstName = user.FirstName,
+            AuthorLastName = user.LastName,
+            AuthorUserName = user.UserName,
+            AuthorProfilePicture = authorProfilePicture?.FilePath,
+            Visibility = request.Visibility,
+            Hashtags = request.Hashtags,
+            MentionedUsers = request.MentionedUsers,
+            LikeCount = 0,
+            CommentCount = 0,
+            ShareCount = 0,
+            IsLikedByCurrentUser = false,
+            IsEdited = false,
+            IsHidden = false,
+            Files = post.Files,
+            TimeElapsed = Helpers.GetTimeElapsedString(post.CreatedAt)
+        };
+
+        await postRepository.InsertAsync(post, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result<PostModel>.Success(postModel);
     }
-    
-    public async Task<Result<List<PostModel>>> GetPostsForCurrentUserAsync(CancellationToken cancellationToken = default)
+
+    public async Task<Result<List<PostModel>>> GetPostsForCurrentUserAsync(
+        CancellationToken cancellationToken = default)
     {
         var currentUserId = userAccessor.GetCurrentUserId();
-        
+
         var posts = await postRepository.GetPostsForUserAsync(currentUserId, cancellationToken);
-        if (posts == null)
+        if (posts is null)
         {
             return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
         }
-        
+
         var postModels = mapper.Map<List<PostModel>>(posts);
-        
+
         return Result<List<PostModel>>.Success(postModels);
     }
 
-    public async Task<Result<List<PostModel>>> GetPostsForUserAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<Result<List<PostModel>>> GetPostsForUserAsync(string userId,
+        CancellationToken cancellationToken = default)
     {
         var posts = await postRepository.GetPostsForUserAsync(userId, cancellationToken);
-        if (posts == null)
+        if (posts is null)
         {
             return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
         }
-        
+
         var postModels = mapper.Map<List<PostModel>>(posts);
-        
+
         return Result<List<PostModel>>.Success(postModels);
     }
 
-    public async Task<Result<PostModel>> GetSinglePostAsync(Guid postId, CancellationToken cancellationToken = default)
+    public async Task<Result<PostModel>> GetSinglePostAsync(Guid postId,
+        CancellationToken cancellationToken = default)
     {
         var post = await postRepository.GetByIdAsync(postId, cancellationToken);
-        if (post == null)
+        if (post is null)
         {
             return Result<PostModel>.Failure(new Error("Post.NotFound", "Post not found"));
         }
@@ -134,11 +131,59 @@ public class PostService(
     public async Task<Result<PostModel>> UpdatePostAsync(Guid postId, UpdatePostRequest request,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return Result<PostModel>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated to update posts"));
+        }
+
+        var post = await postRepository.GetByIdAsync(postId, cancellationToken);
+        if (post == null)
+        {
+            return Result<PostModel>.Failure(new Error("Post.NotFound", "Post not found"));
+        }
+
+        if (post.UserId != currentUserId)
+        {
+            return Result<PostModel>.Failure(new Error("Post.Unauthorized",
+                "You are not authorized to update this post"));
+        }
+        
+        post.Title = request.Title;
+        post.Body = request.Body;
+        post.IsEdited = true;
+        post.UpdatedAt = DateTimeOffset.UtcNow;
+
+        await postRepository.UpdateAsync(post, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        var updatedPost = await postRepository.GetByIdAsync(postId, cancellationToken);
+        var postModel = mapper.Map<PostModel>(updatedPost);
+
+        return Result<PostModel>.Success(postModel);
     }
 
-    public async Task<Result<bool>> DeletePostAsync(Guid postId, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> DeletePostAsync(Guid postId,
+        CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return Result<bool>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated to delete posts"));
+        }
+
+        var post = await postRepository.GetByIdAsync(postId, cancellationToken);
+        if (post.UserId != currentUserId)
+        {
+            return Result<bool>.Failure(new Error("Post.Unauthorized",
+                "You are not authorized to delete this post"));
+        }
+
+        await postRepository.DeleteAsync(post, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result<bool>.Success();
     }
 }
