@@ -13,7 +13,7 @@ public class ApplicationFile : IEntity<Guid>
     public FileType Type { get; set; }
     public string UserId { get; set; } = string.Empty;
     public ApplicationUser User { get; set; }
-    public Guid PostId { get; set; }
-    public Post Post { get; set; }
+    public Guid? PostId { get; set; }
+    public Post? Post { get; set; }
     public DateTimeOffset UploadedAt { get; set; }
 }

@@ -17,9 +17,10 @@ public class Post : IEntity<Guid>
     public string TimeElapsed { get; set; } = string.Empty;
     public ApplicationUser User { get; set; }
     public List<ApplicationUser>? MentionedUsers { get; set; } = new();
+    public List<string>? Hashtags { get; set; } = new();
     public ICollection<ApplicationFile>? Files { get; set; }
-    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;
-    public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.Now;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
     public bool IsEdited { get; set; }
     public bool IsHidden { get; set; } 
 }

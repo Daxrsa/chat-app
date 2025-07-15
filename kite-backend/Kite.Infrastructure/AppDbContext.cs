@@ -96,16 +96,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
             entity.Property(e => e.ReadAt).HasColumnType("timestamptz");
         });
-
-        modelBuilder.Entity<ApplicationFile>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.HasOne(f => f.User)
-                .WithMany(u => u.Files)
-                .HasForeignKey(f => f.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-            entity.Property(e => e.UploadedAt).HasColumnType("timestamptz");
-        });
         
         modelBuilder.Entity<Post>(entity =>
         {
@@ -120,10 +110,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
         modelBuilder.Entity<ApplicationFile>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.HasOne(f => f.User)
+                .WithMany(u => u.Files)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(f => f.Post)
                 .WithMany(p => p.Files)
                 .HasForeignKey(f => f.PostId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
             entity.Property(e => e.UploadedAt).HasColumnType("timestamptz");
         });
     }

@@ -8,7 +8,7 @@ public class FileUploadResult
     public string OriginalFileName { get; set; } = string.Empty;
     public string StoredFileName { get; set; } = string.Empty;
     public string FilePath { get; set; } = string.Empty;
-    public string FileSize { get; set; } = string.Empty;
+    public string FileSize { get; set; }
     public DateTimeOffset UploadedAt { get; set; }
     public string UploadedBy { get; set; } = string.Empty;
     public FileType Type { get; set; }

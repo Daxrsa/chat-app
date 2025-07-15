@@ -7,7 +7,7 @@ namespace Kite.Web.Controllers;
 public class PostController(IPostService postService) : BaseApiController
 {
     [HttpPost("create-post")]
-    public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest model)
+    public async Task<IActionResult> CreatePost([FromForm] CreatePostRequest model)
         => HandleResult(await postService.CreatePostAsync(model));
 
     [HttpGet("user-posts")]
@@ -23,7 +23,7 @@ public class PostController(IPostService postService) : BaseApiController
         => HandleResult(await postService.GetSinglePostAsync(postId));
 
     [HttpPut("{postId}")]
-    public async Task<IActionResult> UpdatePost(Guid postId, [FromBody] UpdatePostRequest model)
+    public async Task<IActionResult> UpdatePost(Guid postId, [FromForm] UpdatePostRequest model)
         => HandleResult(await postService.UpdatePostAsync(postId, model));
 
     [HttpDelete("{postId}")]

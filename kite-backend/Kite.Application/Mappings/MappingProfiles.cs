@@ -1,5 +1,6 @@
 using AutoMapper;
 using Kite.Application.Models;
+using Kite.Application.Models.Post;
 using Kite.Application.Utilities;
 using Kite.Domain.Entities;
 using Kite.Domain.Enums;
@@ -19,20 +20,14 @@ public class MappingProfiles : Profile
             .ForMember(dest => dest.MentionedUsers, opt => opt.MapFrom(src => src.MentionedUsers.FirstOrDefault(f => f.FirstName == src.User.FirstName && f.LastName == src.User.LastName)))
             .ReverseMap();
 
-        CreateMap<ApplicationFile, AttachedFileModel>().ReverseMap();
-
-        CreateMap<FileUploadResult, ApplicationFile>()
-            .ForMember(dest => dest.Filename, opt => opt.MapFrom(src => src.StoredFileName))
-            .ForMember(dest => dest.Extension, opt => opt.MapFrom(src => Path.GetExtension(src.StoredFileName)))
-            .ForMember(dest => dest.Size, opt => opt.MapFrom(src => src.FileSize.ToString()))
-            .ForMember(dest => dest.FilePath, opt => opt.MapFrom(src => src.FilePath))
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Type, opt => opt.Ignore())
-            .ForMember(dest => dest.UserId, opt => opt.Ignore())
-            .ForMember(dest => dest.PostId, opt => opt.Ignore())
-            .ForMember(dest => dest.UploadedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.User, opt => opt.Ignore())
-            .ForMember(dest => dest.Post, opt => opt.Ignore())
+        CreateMap<Post, CreatePostRequest>()
+            .ForMember(dest => dest.MentionedUsers, opt => opt.MapFrom(src => 
+                src.MentionedUsers.Select(u => new UserModel() 
+                { 
+                    Id = u.Id, 
+                    FirstName = u.FirstName, 
+                    LastName = u.LastName 
+                })))
             .ReverseMap();
     }
 }

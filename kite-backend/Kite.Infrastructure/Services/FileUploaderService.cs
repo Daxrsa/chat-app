@@ -92,101 +92,82 @@ public class FileUploaderService(
     public async Task<Result<FileUploadResult>> UploadFileAsync(IFormFile file, FileType type,
         CancellationToken cancellationToken)
     {
-        try
+        var currentUserId = userAccessor.GetCurrentUserId();
+
+        if (string.IsNullOrEmpty(currentUserId))
         {
-            var currentUserId = userAccessor.GetCurrentUserId();
-
-            if (string.IsNullOrEmpty(currentUserId))
-            {
-                return Result<FileUploadResult>.Failure(
-                    new Error("Auth.UserNotFound", "Current user ID could not be determined."));
-            }
-
-            if (file == null || file.Length == 0)
-                return Result<FileUploadResult>.Failure(FileUploadErrors.NoFile);
-
-            if (file.Length > FileSizeLimit)
-                return Result<FileUploadResult>.Failure(
-                    FileUploadErrors.SizeExceededWithLimit(Helpers.FormatFileSize(FileSizeLimit)));
-
-            var avScan = await antivirusService.ScanFileAsync(file);
-
-            if (!avScan.IsSuccess)
-            {
-                return Result<FileUploadResult>.Failure(avScan.Errors.First().Description);
-            }
-
-            if (!avScan.Value.IsClean)
-            {
-                return Result<FileUploadResult>.Failure(
-                    FileUploadErrors.VirusDetected(avScan.Value.VirusName));
-            }
-
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (string.IsNullOrEmpty(ext) || !PermittedExtensions.Contains(ext))
-                return Result<FileUploadResult>.Failure(
-                    FileUploadErrors.InvalidExtensionWithAllowed(PermittedExtensions));
-
-            var subfolder = FileTypeToFolder.GetValueOrDefault(ext, "others");
-            var targetDirectory = Path.Combine(TargetFilePath, subfolder);
-
-            Directory.CreateDirectory(targetDirectory);
-
-            var safeFileName = $"{Guid.NewGuid()}{ext}";
-            var finalPath = Path.Combine(targetDirectory, safeFileName);
-
-            await using (var stream = new FileStream(finalPath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream, cancellationToken);
-            }
-
-            // await RemoveExecutePermissionsAsync(finalPath);
-
-            var encodedOriginalName = HtmlEncoder.Default.Encode(Path.GetFileName(file.FileName));
-            var fileSize = Helpers.FormatFileSize(file.Length);
-            var result = new FileUploadResult
-            {
-                Message = "File uploaded successfully.",
-                OriginalFileName = encodedOriginalName,
-                StoredFileName = safeFileName,
-                FilePath = finalPath,
-                FileSize = fileSize,
-                UploadedAt = DateTime.UtcNow,
-                UploadedBy = currentUserId,
-                Type = type
-            };
-
-            var fileInDb = new ApplicationFile
-            {
-                Filename = safeFileName,
-                Extension = ext,
-                Size = fileSize,
-                UserId = currentUserId,
-                FilePath = finalPath,
-                UploadedAt = DateTimeOffset.UtcNow,
-                Type = type
-            };
-
-            await fileRepository.InsertAsync(fileInDb, cancellationToken);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            return Result<FileUploadResult>.Success(result);
+            return Result<FileUploadResult>.Failure(
+                new Error("Auth.UserNotFound", "Current user ID could not be determined."));
         }
-        catch (DirectoryNotFoundException)
+
+        if (file == null || file.Length == 0)
+            return Result<FileUploadResult>.Failure(FileUploadErrors.NoFile);
+
+        if (file.Length > FileSizeLimit)
+            return Result<FileUploadResult>.Failure(
+                FileUploadErrors.SizeExceededWithLimit(Helpers.FormatFileSize(FileSizeLimit)));
+
+        var avScan = await antivirusService.ScanFileAsync(file);
+
+        if (!avScan.IsSuccess)
         {
-            return Result<FileUploadResult>.Failure(FileUploadErrors.DirectoryNotFound);
+            return Result<FileUploadResult>.Failure(avScan.Errors.First().Description);
         }
-        catch (UnauthorizedAccessException)
+
+        if (!avScan.Value.IsClean)
         {
-            return Result<FileUploadResult>.Failure(FileUploadErrors.AccessDenied);
+            return Result<FileUploadResult>.Failure(
+                FileUploadErrors.VirusDetected(avScan.Value.VirusName));
         }
-        catch (IOException ex)
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (string.IsNullOrEmpty(ext) || !PermittedExtensions.Contains(ext))
+            return Result<FileUploadResult>.Failure(
+                FileUploadErrors.InvalidExtensionWithAllowed(PermittedExtensions));
+
+        var subfolder = FileTypeToFolder.GetValueOrDefault(ext, "others");
+        var targetDirectory = Path.Combine(TargetFilePath, subfolder);
+
+        Directory.CreateDirectory(targetDirectory);
+
+        var safeFileName = $"{Guid.NewGuid()}{ext}";
+        var finalPath = Path.Combine(targetDirectory, safeFileName);
+
+        await using (var stream = new FileStream(finalPath, FileMode.Create))
         {
-            return Result<FileUploadResult>.Failure(FileUploadErrors.IOError(ex.Message));
+            await file.CopyToAsync(stream, cancellationToken);
         }
-        catch (Exception ex)
+
+        // await RemoveExecutePermissionsAsync(finalPath);
+
+        var encodedOriginalName = HtmlEncoder.Default.Encode(Path.GetFileName(file.FileName));
+        var fileSize = Helpers.FormatFileSize(file.Length);
+        var result = new FileUploadResult
         {
-            return Result<FileUploadResult>.Failure(FileUploadErrors.UnknownError(ex.Message));
-        }
+            Message = "File uploaded successfully.",
+            OriginalFileName = encodedOriginalName,
+            StoredFileName = safeFileName,
+            FilePath = finalPath,
+            FileSize = fileSize,
+            UploadedAt = DateTime.UtcNow,
+            UploadedBy = currentUserId,
+            Type = type
+        };
+
+        var fileInDb = new ApplicationFile
+        {
+            Filename = safeFileName,
+            Extension = ext,
+            Size = fileSize,
+            UserId = currentUserId,
+            FilePath = finalPath,
+            UploadedAt = DateTimeOffset.UtcNow,
+            Type = type
+        };
+
+        await fileRepository.InsertAsync(fileInDb, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result<FileUploadResult>.Success(result);
     }
 
     public async Task<Result<BatchUploadResult>> UploadFilesAsync(
@@ -194,176 +175,158 @@ public class FileUploaderService(
         FileType type,
         CancellationToken cancellationToken)
     {
-        try
+        var currentUserId = userAccessor.GetCurrentUserId();
+
+        if (string.IsNullOrEmpty(currentUserId))
         {
-            var currentUserId = userAccessor.GetCurrentUserId();
+            return Result<BatchUploadResult>.Failure(
+                new Error("Auth.UserNotFound", "Current user ID could not be determined."));
+        }
 
-            if (string.IsNullOrEmpty(currentUserId))
+        var uploadStartTime = DateTime.UtcNow;
+
+        if (files == null || !files.Any())
+            return Result<BatchUploadResult>.Failure(FileUploadErrors.NoFile);
+
+        var successfulUploads = new List<FileUploadResult>();
+        var failedUploads = new List<FailedUpload>();
+
+        var fileIndex = 0;
+        foreach (var file in files)
+        {
+            fileIndex++;
+
+            try
             {
-                return Result<BatchUploadResult>.Failure(
-                    new Error("Auth.UserNotFound", "Current user ID could not be determined."));
-            }
+                var uploadResult = await UploadFileAsync(file, type, cancellationToken);
 
-            var uploadStartTime = DateTime.UtcNow;
-
-            if (files == null || !files.Any())
-                return Result<BatchUploadResult>.Failure(FileUploadErrors.NoFile);
-
-            var successfulUploads = new List<FileUploadResult>();
-            var failedUploads = new List<FailedUpload>();
-
-            var fileIndex = 0;
-            foreach (var file in files)
-            {
-                fileIndex++;
-
-                try
+                if (uploadResult.IsSuccess)
                 {
-                    var uploadResult = await UploadFileAsync(file, type, cancellationToken);
-
-                    if (uploadResult.IsSuccess)
-                    {
-                        successfulUploads.Add(uploadResult.Value);
-                    }
-                    else
-                    {
-                        var failedUpload = new FailedUpload
-                        {
-                            FileName = file.FileName ?? "unknown",
-                            Reason = uploadResult.Errors.FirstOrDefault()?.Description ??
-                                     "Unknown error"
-                        };
-                        failedUploads.Add(failedUpload);
-                    }
+                    successfulUploads.Add(uploadResult.Value);
                 }
-                catch (Exception ex)
+                else
                 {
                     var failedUpload = new FailedUpload
                     {
                         FileName = file.FileName ?? "unknown",
-                        Reason = $"Unexpected error during upload - {ex.Message}"
+                        Reason = uploadResult.Errors.FirstOrDefault()?.Description ??
+                                 "Unknown error"
                     };
                     failedUploads.Add(failedUpload);
                 }
             }
-
-            var uploadEndTime = DateTime.UtcNow;
-            var totalDuration = (uploadEndTime - uploadStartTime).TotalMilliseconds;
-
-            var batchResult = new BatchUploadResult
+            catch (Exception ex)
             {
-                TotalFiles = files.Count,
-                SuccessfulUploads = successfulUploads,
-                FailedUploads = failedUploads,
-                SuccessCount = successfulUploads.Count,
-                FailureCount = failedUploads.Count,
-                IsPartialSuccess = failedUploads.Count > 0 && successfulUploads.Count > 0,
-                UploadedAt = uploadStartTime,
-                CompletedAt = uploadEndTime,
-                UploadDurationMs = totalDuration,
-                UploadedBy = currentUserId
-            };
+                var failedUpload = new FailedUpload
+                {
+                    FileName = file.FileName ?? "unknown",
+                    Reason = $"Unexpected error during upload - {ex.Message}"
+                };
+                failedUploads.Add(failedUpload);
+            }
+        }
 
-            return Result<BatchUploadResult>.Success(batchResult);
-        }
-        catch (Exception ex)
+        var uploadEndTime = DateTime.UtcNow;
+        var totalDuration = (uploadEndTime - uploadStartTime).TotalMilliseconds;
+
+        var batchResult = new BatchUploadResult
         {
-            return Result<BatchUploadResult>.Failure(
-                new Error("BatchUpload.CriticalError",
-                    $"Critical error during batch upload: {ex.Message}"));
-        }
+            TotalFiles = files.Count,
+            SuccessfulUploads = successfulUploads,
+            FailedUploads = failedUploads,
+            SuccessCount = successfulUploads.Count,
+            FailureCount = failedUploads.Count,
+            IsPartialSuccess = failedUploads.Count > 0 && successfulUploads.Count > 0,
+            UploadedAt = uploadStartTime,
+            CompletedAt = uploadEndTime,
+            UploadDurationMs = totalDuration,
+            UploadedBy = currentUserId
+        };
+
+        return Result<BatchUploadResult>.Success(batchResult);
     }
 
     public async Task<Result<FileDeleteResult>> DeleteFileAsync(Guid fileId,
         CancellationToken cancellationToken)
     {
+        var currentUserId = userAccessor.GetCurrentUserId();
+
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return Result<FileDeleteResult>.Failure(
+                new Error("Auth.UserNotFound", "Current user ID could not be determined."));
+        }
+
+        var fileEntity = await fileRepository.GetByIdAsync(fileId, cancellationToken);
+        if (fileEntity == null)
+        {
+            return Result<FileDeleteResult>.Failure(
+                new Error("File.NotFound", "File not found."));
+        }
+
+        if (fileEntity.UserId != currentUserId)
+        {
+            return Result<FileDeleteResult>.Failure(
+                new Error("File.Unauthorized", "You are not authorized to delete this file."));
+        }
+
+        var deleteResult = new FileDeleteResult
+        {
+            FileName = fileEntity.Filename,
+            DeletedBy = currentUserId,
+            DeletedAt = DateTime.UtcNow,
+            PhysicalFileDeleted = false,
+            DatabaseRecordDeleted = false
+        };
+
         try
         {
-            var currentUserId = userAccessor.GetCurrentUserId();
+            var subfolder = FileTypeToFolder.GetValueOrDefault(fileEntity.Extension, "others");
+            var filePath = Path.Combine(TargetFilePath, subfolder, fileEntity.Filename);
 
-            if (string.IsNullOrEmpty(currentUserId))
+            if (File.Exists(filePath))
             {
-                return Result<FileDeleteResult>.Failure(
-                    new Error("Auth.UserNotFound", "Current user ID could not be determined."));
-            }
-
-            var fileEntity = await fileRepository.GetByIdAsync(fileId, cancellationToken);
-            if (fileEntity == null)
-            {
-                return Result<FileDeleteResult>.Failure(
-                    new Error("File.NotFound", "File not found."));
-            }
-
-            if (fileEntity.UserId != currentUserId)
-            {
-                return Result<FileDeleteResult>.Failure(
-                    new Error("File.Unauthorized", "You are not authorized to delete this file."));
-            }
-
-            var deleteResult = new FileDeleteResult
-            {
-                FileName = fileEntity.Filename,
-                DeletedBy = currentUserId,
-                DeletedAt = DateTime.UtcNow,
-                PhysicalFileDeleted = false,
-                DatabaseRecordDeleted = false
-            };
-
-            try
-            {
-                var subfolder = FileTypeToFolder.GetValueOrDefault(fileEntity.Extension, "others");
-                var filePath = Path.Combine(TargetFilePath, subfolder, fileEntity.Filename);
-
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                    deleteResult.PhysicalFileDeleted = true;
-                }
-                else
-                {
-                    deleteResult.PhysicalFileDeleted = false;
-                }
-            }
-            catch
-            {
-                deleteResult.PhysicalFileDeleted = false;
-            }
-
-            try
-            {
-                await fileRepository.DeleteAsync(fileEntity, cancellationToken);
-                await unitOfWork.SaveChangesAsync(cancellationToken);
-                deleteResult.DatabaseRecordDeleted = true;
-            }
-            catch (Exception ex)
-            {
-                return Result<FileDeleteResult>.Failure(
-                    new Error("File.DatabaseError",
-                        $"Failed to delete file record from database: {ex.Message}"));
-            }
-
-            if (deleteResult.PhysicalFileDeleted && deleteResult.DatabaseRecordDeleted)
-            {
-                deleteResult.Message = "File deleted successfully.";
-            }
-            else if (deleteResult.DatabaseRecordDeleted)
-            {
-                deleteResult.Message =
-                    "File record deleted from database. Physical file was not found.";
+                File.Delete(filePath);
+                deleteResult.PhysicalFileDeleted = true;
             }
             else
             {
-                deleteResult.Message = "Database record deleted but physical file deletion failed.";
+                deleteResult.PhysicalFileDeleted = false;
             }
+        }
+        catch
+        {
+            deleteResult.PhysicalFileDeleted = false;
+        }
 
-            return Result<FileDeleteResult>.Success(deleteResult);
+        try
+        {
+            await fileRepository.DeleteAsync(fileEntity, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            deleteResult.DatabaseRecordDeleted = true;
         }
         catch (Exception ex)
         {
             return Result<FileDeleteResult>.Failure(
-                new Error("File.DeleteError",
-                    $"Unexpected error during file deletion: {ex.Message}"));
+                new Error("File.DatabaseError",
+                    $"Failed to delete file record from database: {ex.Message}"));
         }
+
+        if (deleteResult.PhysicalFileDeleted && deleteResult.DatabaseRecordDeleted)
+        {
+            deleteResult.Message = "File deleted successfully.";
+        }
+        else if (deleteResult.DatabaseRecordDeleted)
+        {
+            deleteResult.Message =
+                "File record deleted from database. Physical file was not found.";
+        }
+        else
+        {
+            deleteResult.Message = "Database record deleted but physical file deletion failed.";
+        }
+
+        return Result<FileDeleteResult>.Success(deleteResult);
     }
 }
 

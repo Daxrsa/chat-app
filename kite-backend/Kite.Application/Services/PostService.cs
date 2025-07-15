@@ -30,14 +30,27 @@ public class PostService(
                 "User must be authenticated to create posts"));
         }
 
-        var user = await userManager.FindByIdAsync(currentUserId);
-        if (user == null)
+        var currentUser = await userManager.FindByIdAsync(currentUserId);
+        if (currentUser == null)
         {
             return Result<PostModel>.Failure(new Error("User.NotFound", "User not found"));
         }
 
-        var files = await fileUploaderService.UploadFilesAsync(request.AttachedFiles,
+        var uploadResult = await fileUploaderService.UploadFilesAsync(request.Files,
             FileType.Post, cancellationToken);
+
+        var applicationFiles = uploadResult.Value.SuccessfulUploads.Select(fileResult =>
+            new ApplicationFile
+            {
+                Id = Guid.NewGuid(),
+                Filename = fileResult.OriginalFileName,
+                Extension = Path.GetExtension(fileResult.OriginalFileName),
+                Size = fileResult.FileSize,
+                FilePath = fileResult.FilePath,
+                Type = fileResult.Type,
+                UserId = currentUserId,
+                UploadedAt = fileResult.UploadedAt
+            }).ToList();
 
         var post = new Post
         {
@@ -45,10 +58,25 @@ public class PostService(
             Title = request.Title,
             Body = request.Body,
             CreatedAt = DateTimeOffset.UtcNow,
+            Hashtags = request.Hashtags,
             UserId = currentUserId,
             TimeElapsed = Helpers.GetTimeElapsedString(DateTimeOffset.UtcNow),
-            Files = files, //Files is an ApplicationFile object, files is a BatchUploadResult object
+            Files = applicationFiles
         };
+        
+        if (request.MentionedUsers?.Count != 0)
+        {
+            var users = new List<ApplicationUser>();
+            foreach (var userId in request.MentionedUsers)
+            {
+                var user = await userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    users.Add(user);
+                }
+            }
+            post.MentionedUsers = users;
+        }
 
         var authorProfilePicture =
             await applicationFileRepository.GetLatestUserFileByTypeAsync(currentUserId,
@@ -61,9 +89,9 @@ public class PostService(
             Body = post.Body,
             CreatedAt = post.CreatedAt,
             UserId = post.UserId,
-            AuthorFirstName = user.FirstName,
-            AuthorLastName = user.LastName,
-            AuthorUserName = user.UserName,
+            AuthorFirstName = currentUser.FirstName,
+            AuthorLastName = currentUser.LastName,
+            AuthorUserName = currentUser.UserName,
             AuthorProfilePicture = authorProfilePicture?.FilePath,
             Visibility = request.Visibility,
             Hashtags = request.Hashtags,
@@ -74,7 +102,16 @@ public class PostService(
             IsLikedByCurrentUser = false,
             IsEdited = false,
             IsHidden = false,
-            Files = post.Files,
+            Files = post.Files?.Select(file => new AttachedFileModel
+            {
+                Id = file.Id,
+                FileName = file.Filename,
+                Extension = file.Extension,
+                FileSizeInBytes = file.Size,
+                FilePath = file.FilePath,
+                FileType = file.Type,
+                UploadedAt = file.UploadedAt
+            }).ToList() ?? new List<AttachedFileModel>(),
             TimeElapsed = Helpers.GetTimeElapsedString(post.CreatedAt)
         };
 
@@ -150,14 +187,35 @@ public class PostService(
                 "You are not authorized to update this post"));
         }
         
+        if (request.MentionedUsers?.Count != 0)
+        {
+            var users = new List<ApplicationUser>();
+            foreach (var userId in request.MentionedUsers)
+            {
+                var user = await userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    users.Add(user);
+                }
+            }
+            post.MentionedUsers = users;
+        }
+        
         post.Title = request.Title;
         post.Body = request.Body;
+        post.Hashtags = request.Hashtags;
+        post.Visibility = request.Visibility ?? post.Visibility;
         post.IsEdited = true;
         post.UpdatedAt = DateTimeOffset.UtcNow;
+        
+        if (request.Files != null)
+        {
+            await fileUploaderService.UploadFilesAsync(request.Files, FileType.Post, cancellationToken);
+        }
 
         await postRepository.UpdateAsync(post, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         var updatedPost = await postRepository.GetByIdAsync(postId, cancellationToken);
         var postModel = mapper.Map<PostModel>(updatedPost);
 

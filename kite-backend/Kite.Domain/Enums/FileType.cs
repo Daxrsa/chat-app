@@ -5,6 +5,7 @@ public enum FileType
     ProfilePicture,
     Message,
     Post,
+    Unknown,
     // Comment,
     // Reply
 }
