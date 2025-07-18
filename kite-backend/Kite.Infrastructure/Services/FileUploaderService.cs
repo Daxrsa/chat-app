@@ -1,4 +1,5 @@
 using System.Text.Encodings.Web;
+using AutoMapper;
 using Kite.Application.Interfaces;
 using Kite.Application.Models;
 using Kite.Application.Utilities;
@@ -14,7 +15,8 @@ public class FileUploaderService(
     IApplicationFileRepository fileRepository,
     IUnitOfWork unitOfWork,
     IUserAccessor userAccessor,
-    IAntivirusService antivirusService) : IFileUploaderService
+    IAntivirusService antivirusService,
+    IMapper mapper) : IFileUploaderService
 {
     private static readonly string[] PermittedExtensions =
         { ".txt", ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".mp3", ".mp4", ".webp" };
@@ -327,6 +329,33 @@ public class FileUploaderService(
         }
 
         return Result<FileDeleteResult>.Success(deleteResult);
+    }
+
+    public async Task<Result<AttachedFileModel>> ServeFileAsync(Guid fileId, CancellationToken cancellationToken = default)
+    {
+        var file = await fileRepository.GetByIdAsync(fileId, cancellationToken);
+        if (file == null)
+        {
+            return Result<AttachedFileModel>.Failure(
+                new Error("File.NotFound", "File not found."));
+        }
+    
+        var fileModel = mapper.Map<AttachedFileModel>(file);
+    
+        return Result<AttachedFileModel>.Success(fileModel);
+    }
+
+    public async Task<Result<IEnumerable<AttachedFileModel>>> GetAllFilesAsync(CancellationToken cancellationToken = default)
+    {
+        var files = await fileRepository.GetAllAsync(cancellationToken);
+        if (files == null)
+        {
+            return Result<IEnumerable<AttachedFileModel>>.Failure(
+                new Error("Files.NotFound", "No files found"));
+        }
+        var filesModel = mapper.Map<IEnumerable<AttachedFileModel>>(files);
+        
+        return Result<IEnumerable<AttachedFileModel>>.Success(filesModel);
     }
 }
 

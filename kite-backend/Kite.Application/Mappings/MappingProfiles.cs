@@ -20,6 +20,8 @@ public class MappingProfiles : Profile
             .ForMember(dest => dest.MentionedUsers, opt => opt.MapFrom(src => src.MentionedUsers.FirstOrDefault(f => f.FirstName == src.User.FirstName && f.LastName == src.User.LastName)))
             .ReverseMap();
 
+        CreateMap<ApplicationFile, AttachedFileModel>().ReverseMap();
+
         CreateMap<Post, CreatePostRequest>()
             .ForMember(dest => dest.MentionedUsers, opt => opt.MapFrom(src => 
                 src.MentionedUsers.Select(u => new UserModel() 

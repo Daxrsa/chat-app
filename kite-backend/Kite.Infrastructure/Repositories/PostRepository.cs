@@ -14,6 +14,10 @@ public class PostRepository : GenericRepository<Post, Guid>, IPostRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .Include(x => x.Files)
+            .Include(x => x.MentionedUsers)
+            .Include(x => x.Hashtags)
+            .Include(x => x.User)
             .Where(x => x.UserId == userId)
             .ToListAsync(cancellationToken);
     }

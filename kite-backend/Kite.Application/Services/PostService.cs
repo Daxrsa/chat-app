@@ -107,9 +107,10 @@ public class PostService(
                 Id = file.Id,
                 FileName = file.Filename,
                 Extension = file.Extension,
-                FileSizeInBytes = file.Size,
+                Size = file.Size,
                 FilePath = file.FilePath,
-                FileType = file.Type,
+                Type = file.Type,
+                UserId = file.UserId,
                 UploadedAt = file.UploadedAt
             }).ToList() ?? new List<AttachedFileModel>(),
             TimeElapsed = Helpers.GetTimeElapsedString(post.CreatedAt)

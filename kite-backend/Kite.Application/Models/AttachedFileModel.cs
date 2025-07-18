@@ -9,8 +9,9 @@ public class AttachedFileModel
     public string FileName { get; set; } = string.Empty;
     public string Extension { get; set; } = string.Empty;
     public string FilePath { get; set; } = string.Empty;
-    public FileType FileType { get; set; } = FileType.Unknown;
-    public string FileSizeInBytes { get; set; } = string.Empty;
+    public FileType Type { get; set; } = FileType.Unknown;
+    public string UserId { get; set; } = string.Empty;
+    public string Size { get; set; } = string.Empty;
     public DateTimeOffset UploadedAt { get; set; }
     
     // private string ContentType { get; set; } = string.Empty;

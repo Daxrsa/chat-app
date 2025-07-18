@@ -111,6 +111,8 @@ var app = builder.Build();
 
 await app.EnsureRolesCreatedAsync();
 
+app.UseStaticFiles(); 
+
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 
