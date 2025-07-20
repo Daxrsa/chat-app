@@ -8,6 +8,7 @@ using Kite.Domain.Entities;
 using Kite.Domain.Enums;
 using Kite.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Kite.Infrastructure.Services;
 
@@ -16,7 +17,8 @@ public class FileUploaderService(
     IUnitOfWork unitOfWork,
     IUserAccessor userAccessor,
     IAntivirusService antivirusService,
-    IMapper mapper) : IFileUploaderService
+    IMapper mapper,
+    IConfiguration configuration) : IFileUploaderService
 {
     private static readonly string[] PermittedExtensions =
         { ".txt", ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".mp3", ".mp4", ".webp" };
@@ -24,8 +26,10 @@ public class FileUploaderService(
     // 15 MB limit
     private const long FileSizeLimit = 15 * 1024 * 1024;
 
-    private static readonly string
-        TargetFilePath = Path.Combine("/home/daorsa/Desktop/KiteUploads");
+    private readonly string _targetFilePath = Path.Combine(
+        Directory.GetCurrentDirectory(), 
+        configuration["FileStorage:UploadPath"] ?? "KiteUploads"
+    );
 
     private static readonly Dictionary<string, string> FileTypeToFolder = new()
     {
@@ -128,7 +132,7 @@ public class FileUploaderService(
                 FileUploadErrors.InvalidExtensionWithAllowed(PermittedExtensions));
 
         var subfolder = FileTypeToFolder.GetValueOrDefault(ext, "others");
-        var targetDirectory = Path.Combine(TargetFilePath, subfolder);
+        var targetDirectory = Path.Combine(_targetFilePath, subfolder);
 
         Directory.CreateDirectory(targetDirectory);
 
@@ -284,7 +288,7 @@ public class FileUploaderService(
         try
         {
             var subfolder = FileTypeToFolder.GetValueOrDefault(fileEntity.Extension, "others");
-            var filePath = Path.Combine(TargetFilePath, subfolder, fileEntity.Filename);
+            var filePath = Path.Combine(_targetFilePath, subfolder, fileEntity.Filename);
 
             if (File.Exists(filePath))
             {

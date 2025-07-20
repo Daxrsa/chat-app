@@ -7,13 +7,17 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = `${environment.baseApiUrl}/User`;
+  private apiUrl = `${environment.baseApiUrl}/Auth`;
 
   constructor(private http: HttpClient) { }
 
   getLoggedInUser(): Observable<any> {
-    // const token = localStorage.getItem('token');
-    // const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get(`${this.apiUrl}/get-logged-in-user`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.get(`${this.apiUrl}/get-logged-in-user`, { headers });
+  }
+
+  checkIfTokenExists(): void {
+    console.log('Token from localStorage:', localStorage.getItem('token'));
   }
 }

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 namespace Kite.Application.Models;
 
 public class UserModel

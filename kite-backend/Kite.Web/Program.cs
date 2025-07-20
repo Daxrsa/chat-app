@@ -11,6 +11,7 @@ using Kite.Web.Extensions;
 using Kite.Web.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -84,6 +85,7 @@ builder.Services.AddScoped<IFileUploaderService, FileUploaderService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IAntivirusService, ClamAvService>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IFileUrlService, FileUrlService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
@@ -111,7 +113,12 @@ var app = builder.Build();
 
 await app.EnsureRolesCreatedAsync();
 
-app.UseStaticFiles(); 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "KiteUploads")),
+    RequestPath = "/uploads"
+});
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

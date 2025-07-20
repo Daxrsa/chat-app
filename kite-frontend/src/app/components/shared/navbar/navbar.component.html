@@ -20,11 +20,11 @@
       <span>Search for a user</span></button>
     <div class="d-flex gap-2 align-items-center">
       <div class="btn-group">
-        <button type="button" class="btn border-0 dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
+        <button onClick="checkIfTokenExists()" type="button" class="btn border-0 dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true"
           aria-expanded="false">
           <img src="../../../assets/images/female-avatar.svg"
             class="object-fit-cover img-fluid rounded-circle user-avatar ml-1" alt="User Avatar">
-          <span class="">{{loggedInUser?.firstname}} {{loggedInUser?.lastname}}</span>
+          <span class="">{{loggedInUser?.firstName}} {{loggedInUser?.lastName}}</span>
         </button>
         <div class="dropdown-menu">
           <a class="dropdown-item" href="#">My Profile</a>

@@ -7,7 +7,7 @@ namespace Kite.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthService authService) : BaseApiController
+public class AuthController(IAuthService authService, IUserAccessor userAccessor) : BaseApiController
 {
     [HttpPost("register-user")]
     public async Task<IActionResult> Register(RegisterModel model)
@@ -16,6 +16,18 @@ public class AuthController(IAuthService authService) : BaseApiController
     [HttpPost("login-user")]
     public async Task<IActionResult> Login(LoginModel model)
         => HandleResult(await authService.LoginAsync(model));
+    
+    [HttpPost("login-daorsa")]
+    public async Task<IActionResult> LoginDaorsa()
+    {
+        var loginModel = new LoginModel
+        {
+            Email = "daorsahyseni@gmail.com",
+            Password = "P@ssword123",
+            RememberMe = true
+        };
+        return HandleResult(await authService.LoginAsync(loginModel));
+    }
     
     [HttpGet("get-logged-in-user")]
     public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
@@ -28,4 +40,12 @@ public class AuthController(IAuthService authService) : BaseApiController
     [HttpDelete("delete-user-by-email")]
     public async Task<IActionResult> DeleteUserByEmail(string email)
         => HandleResult(await authService.DeleteUserByEmail(email));
+    
+    [HttpGet("test-user")]
+    public IActionResult TestCurrentUser()
+    {
+        var currentUserId = userAccessor.GetCurrentUserId();
+    
+        return Ok(new { UserId = currentUserId });
+    }
 }

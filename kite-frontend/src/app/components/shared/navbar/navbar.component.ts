@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../../services/user.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { User } from '../../../intefaces';
 
 @Component({
   selector: 'app-navbar',
@@ -10,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent implements OnInit {
-  loggedInUser: any = null;
+  loggedInUser: User | null = null;
   loading = false;
   error: string = '';
 
