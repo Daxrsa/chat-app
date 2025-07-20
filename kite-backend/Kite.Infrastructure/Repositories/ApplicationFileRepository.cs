@@ -26,4 +26,13 @@ public class ApplicationFileRepository : GenericRepository<ApplicationFile, Guid
             .OrderByDescending(f => f.UploadedAt)
             .FirstOrDefaultAsync(cancellationToken);
     }
+    
+    public async Task<IEnumerable<ApplicationFile>> GetLatestUserFilesByTypeAsync(List<string> userIds, FileType type, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(f => userIds.Contains(f.UserId) && f.Type == type)
+            .GroupBy(f => f.UserId)
+            .Select(g => g.OrderByDescending(f => f.UploadedAt).FirstOrDefault())
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -134,17 +134,31 @@ public class AuthService(
         CancellationToken cancellationToken = default)
     {
         var applicationUsers = await userManager.Users.ToListAsync(cancellationToken);
+        
+        var userIds = applicationUsers.Select(u => u.Id).ToList();
+        
+        var profilePictures = await applicationFileRepository
+            .GetLatestUserFilesByTypeAsync(userIds, FileType.ProfilePicture, cancellationToken);
+        
+        var profilePictureDict = profilePictures.ToDictionary(p => p.UserId, p => p.FilePath);
 
+        var userRoles = new Dictionary<string, string>();
+        foreach (var user in applicationUsers)
+        {
+            var roles = await userManager.GetRolesAsync(user);
+            userRoles[user.Id] = roles.FirstOrDefault() ?? "";
+        }
+        
         var userModels = await Task.WhenAll(
             applicationUsers.Select(async user => new UserModel
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
-                UserName = user.UserName,
+                UserName = user.UserName ?? string.Empty,
                 LastName = user.LastName,
-                Email = user.Email,
-                Role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ?? "",
-                ProfilePicture = "",
+                Email = user.Email ?? string.Empty,
+                Role = userRoles[user.Id],
+                ProfilePicture = fileUrlService.ServeFileUrl(profilePictureDict.GetValueOrDefault(user.Id) ?? string.Empty),
                 CreatedAt = user.CreatedAt
             })
         );
@@ -176,7 +190,7 @@ public class AuthService(
             await applicationFileRepository.GetLatestUserFileByTypeAsync(currentUserId,
                 FileType.ProfilePicture, cancellationToken);
 
-        var userModel = new UserModel 
+        var userModel = new UserModel
         {
             Id = user.Id,
             Email = user.Email ?? string.Empty,
@@ -184,7 +198,7 @@ public class AuthService(
             UserName = user.UserName ?? string.Empty,
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
-            ProfilePicture = fileUrlService.GetFileUrl(profilePicture?.FilePath ?? string.Empty),
+            ProfilePicture = fileUrlService.ServeFileUrl(profilePicture?.FilePath ?? string.Empty),
             Role = role.FirstOrDefault() ?? string.Empty
         };
 

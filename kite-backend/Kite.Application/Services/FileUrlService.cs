@@ -3,24 +3,22 @@ using Microsoft.Extensions.Configuration;
 
 namespace Kite.Application.Services;
 
-public class FileUrlService(IConfiguration configuration) : IFileUrlService
+public class FileUrlService : IFileUrlService
 {
-    private readonly string _uploadPath = configuration["FileStorage:UploadPath"] ?? "KiteUploads";
-
-    public string GetFileUrl(string filePath)
+    public string ServeFileUrl(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))
             return string.Empty;
 
-        var relativePath = filePath.Replace(_uploadPath, "").TrimStart('/', '\\');
-        return $"/uploads/{relativePath.Replace('\\', '/')}";
-    }
+        var uploadsIndex = filePath.IndexOf("uploads", StringComparison.OrdinalIgnoreCase);
+        if (uploadsIndex == -1)
+            return string.Empty;
 
-    public string GetAbsoluteFileUrl(string filePath, string baseUrl)
-    {
-        var relativeUrl = GetFileUrl(filePath);
-        return string.IsNullOrEmpty(relativeUrl)
-            ? string.Empty
-            : $"{baseUrl.TrimEnd('/')}{relativeUrl}";
+        var startIndex = uploadsIndex + "uploads".Length;
+        var relativePath = filePath.Substring(startIndex)
+            .TrimStart('/', '\\')
+            .Replace('\\', '/');
+
+        return $"http://localhost:5019/uploads/{relativePath}";
     }
 }
