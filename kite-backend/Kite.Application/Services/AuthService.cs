@@ -158,7 +158,7 @@ public class AuthService(
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
                 Role = userRoles[user.Id],
-                ProfilePicture = fileUrlService.ServeFileUrl(profilePictureDict.GetValueOrDefault(user.Id) ?? string.Empty),
+                ProfilePicture = profilePictureDict.GetValueOrDefault(user.Id) ?? string.Empty,
                 CreatedAt = user.CreatedAt
             })
         );
@@ -198,7 +198,7 @@ public class AuthService(
             UserName = user.UserName ?? string.Empty,
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
-            ProfilePicture = fileUrlService.ServeFileUrl(profilePicture?.FilePath ?? string.Empty),
+            ProfilePicture = profilePicture?.FilePath ?? string.Empty,
             Role = role.FirstOrDefault() ?? string.Empty
         };
 

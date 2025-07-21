@@ -91,7 +91,7 @@ public class PostService(
             UserId = post.UserId,
             AuthorFirstName = currentUser.FirstName,
             AuthorLastName = currentUser.LastName,
-            AuthorUserName = currentUser.UserName,
+            AuthorUserName = currentUser.UserName ?? string.Empty,
             AuthorProfilePicture = authorProfilePicture?.FilePath,
             Visibility = request.Visibility,
             Hashtags = request.Hashtags,
