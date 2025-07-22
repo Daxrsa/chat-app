@@ -29,9 +29,11 @@ public class MappingProfiles : Profile
             .ForMember(dest => dest.FilePath, opt => opt.MapFrom<FileUrlResolver<AttachedFileModel>>())
             .ReverseMap();
 
-        CreateMap<ApplicationFile, UserModel>() //TODO not working as expected
-            .ForMember(dest => dest.ProfilePicture,
-                opt => opt.MapFrom<FileUrlResolver<UserModel>>());
+        CreateMap<ApplicationFile, UserModel>()
+            .ForMember(
+                dest => dest.ProfilePicture,
+                opt => opt.MapFrom<FileUrlResolver<UserModel>>()
+            );
 
         CreateMap<Post, CreatePostRequest>()
             .ForMember(dest => dest.MentionedUsers, opt => opt.MapFrom(src =>
