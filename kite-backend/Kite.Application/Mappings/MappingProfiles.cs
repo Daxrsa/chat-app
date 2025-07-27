@@ -9,6 +9,7 @@ namespace Kite.Application.Mappings;
 
 public class MappingProfiles : Profile
 {
+    private readonly FileUrlResolver<ApplicationFile> fileUrlResolver;
     public MappingProfiles()
     {
         CreateMap<Post, PostModel>()
@@ -30,10 +31,7 @@ public class MappingProfiles : Profile
             .ReverseMap();
 
         CreateMap<ApplicationFile, UserModel>()
-            .ForMember(
-                dest => dest.ProfilePicture,
-                opt => opt.MapFrom<FileUrlResolver<UserModel>>()
-            );
+            .ForMember(dest => dest.ProfilePicture, opt => opt.MapFrom<FileUrlResolver<UserModel>>());
 
         CreateMap<Post, CreatePostRequest>()
             .ForMember(dest => dest.MentionedUsers, opt => opt.MapFrom(src =>

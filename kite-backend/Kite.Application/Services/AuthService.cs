@@ -1,3 +1,4 @@
+using AutoMapper;
 using Kite.Application.Interfaces;
 using Kite.Application.Models;
 using Kite.Domain.Common;
@@ -15,7 +16,7 @@ public class AuthService(
     IUserAccessor userAccessor,
     IApplicationFileRepository applicationFileRepository,
     ITokenService tokenService,
-    IFileUrlService fileUrlService) : IAuthService
+    IMapper mapper) : IAuthService
 {
     public async Task<Result<UserModel>> RegisterAsync(RegisterModel model)
     {
@@ -134,13 +135,13 @@ public class AuthService(
         CancellationToken cancellationToken = default)
     {
         var applicationUsers = await userManager.Users.ToListAsync(cancellationToken);
-        
+    
         var userIds = applicationUsers.Select(u => u.Id).ToList();
-        
+    
         var profilePictures = await applicationFileRepository
             .GetLatestUserFilesByTypeAsync(userIds, FileType.ProfilePicture, cancellationToken);
-        
-        var profilePictureDict = profilePictures.ToDictionary(p => p.UserId, p => p.FilePath);
+    
+        var profilePictureDict = profilePictures.ToDictionary(p => p.UserId, p => p);
 
         var userRoles = new Dictionary<string, string>();
         foreach (var user in applicationUsers)
@@ -148,9 +149,10 @@ public class AuthService(
             var roles = await userManager.GetRolesAsync(user);
             userRoles[user.Id] = roles.FirstOrDefault() ?? "";
         }
-        
-        var userModels = await Task.WhenAll(
-            applicationUsers.Select(async user => new UserModel
+    
+        var userModels = applicationUsers.Select(user =>
+        {
+            var userModel = new UserModel
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
@@ -158,14 +160,23 @@ public class AuthService(
                 LastName = user.LastName,
                 Email = user.Email ?? string.Empty,
                 Role = userRoles[user.Id],
-                ProfilePicture = profilePictureDict.GetValueOrDefault(user.Id) ?? string.Empty,
                 CreatedAt = user.CreatedAt
-            })
-        );
+            };
+            
+            if (profilePictureDict.TryGetValue(user.Id, out var profileFile))
+            {
+                var mappedUser = mapper.Map<ApplicationFile, UserModel>(profileFile);
+                userModel.ProfilePicture = mappedUser.ProfilePicture;
+            }
+            else
+            {
+                userModel.ProfilePicture = string.Empty;
+            }
 
-        var userModelsList = userModels.ToList();
+            return userModel;
+        }).ToList();
 
-        return Result<List<UserModel>>.Success(userModelsList);
+        return Result<List<UserModel>>.Success(userModels);
     }
 
     public async Task<Result<UserModel>> GetCurrentUserAsync(
