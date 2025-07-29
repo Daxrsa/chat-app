@@ -13,6 +13,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<FriendRequest> FriendRequests { get; set; }
     public DbSet<ApplicationFile> Files { get; set; }
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<Reaction> Reactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -43,6 +45,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+            entity.HasMany(u => u.Reactions)
+                .WithOne(r => r.User)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<FriendRequest>(entity =>
@@ -105,6 +111,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             entity.Property(e => e.CreatedAt).HasColumnType("timestamptz");
+            entity.HasMany(p => p.Reactions)
+                .WithOne()
+                .HasForeignKey(r => r.EntityId)
+                .HasPrincipalKey(p => p.Id)
+                .OnDelete(DeleteBehavior.Cascade);
         });
         
         modelBuilder.Entity<ApplicationFile>(entity =>
@@ -121,5 +132,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
                 .IsRequired(false);
             entity.Property(e => e.UploadedAt).HasColumnType("timestamptz");
         });
+        
+        modelBuilder.Entity<Reaction>()
+            .HasIndex(r => new { r.UserId, r.EntityId, r.EntityType })
+            .IsUnique();
+        
+        modelBuilder.Entity<Reaction>()
+            .HasOne(r => r.User)
+            .WithMany(u => u.Reactions)
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Reaction>()
+            .Property(r => r.EntityType)
+            .HasConversion<int>();
+
+        modelBuilder.Entity<Reaction>()
+            .Property(r => r.ReactionType)
+            .HasConversion<int>();
     }
 }

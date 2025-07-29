@@ -8,10 +8,10 @@ public class Post : IEntity<Guid>
     public Guid Id { get; set; }
     public string Title { get; set; }
     public string Body { get; set; }
-    public int LikeCount { get; set; }
+    public int ReactionCount { get; set; }
+    public ICollection<Reaction> Reactions { get; set; } = new List<Reaction>();
     public int CommentCount { get; set; }
     public int ShareCount { get; set; }
-    public bool IsLikedByCurrentUser { get; set; }
     public PostVisibility Visibility { get; set; } = PostVisibility.Public;
     public string UserId { get; set; }
     public string TimeElapsed { get; set; } = string.Empty;

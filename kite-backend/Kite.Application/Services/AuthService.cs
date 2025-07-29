@@ -209,9 +209,18 @@ public class AuthService(
             UserName = user.UserName ?? string.Empty,
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
-            ProfilePicture = profilePicture?.FilePath ?? string.Empty,
             Role = role.FirstOrDefault() ?? string.Empty
         };
+
+        if (profilePicture != null)
+        {
+            var mappedUser = mapper.Map<ApplicationFile, UserModel>(profilePicture);
+            userModel.ProfilePicture = mappedUser.ProfilePicture;
+        }
+        else
+        {
+            userModel.ProfilePicture = string.Empty;
+        }
 
         return Result<UserModel>.Success(userModel);
     }

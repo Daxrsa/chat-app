@@ -87,6 +87,7 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IAntivirusService, ClamAvService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IFileUrlService, FileUrlService>();
+builder.Services.AddScoped<IReactionService, ReactionService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
@@ -94,6 +95,7 @@ builder.Services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IApplicationFileRepository, ApplicationFileRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddScoped<FileUrlResolver<AttachedFileModel>>();

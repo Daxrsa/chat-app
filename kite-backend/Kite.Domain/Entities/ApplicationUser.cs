@@ -8,6 +8,7 @@ public class ApplicationUser : IdentityUser, IEntity<string>
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
+    public ICollection<Reaction> Reactions { get; set; } = new List<Reaction>();
     public ICollection<FriendRequest>? FriendRequests { get; set; }
     public ICollection<Notification>? Notifications { get; set; }
     public ICollection<ApplicationFile>? Files { get; set; }
