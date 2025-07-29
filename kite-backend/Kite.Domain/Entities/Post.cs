@@ -10,6 +10,7 @@ public class Post : IEntity<Guid>
     public string Body { get; set; }
     public int ReactionCount { get; set; }
     public ICollection<Reaction> Reactions { get; set; } = new List<Reaction>();
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public int CommentCount { get; set; }
     public int ShareCount { get; set; }
     public PostVisibility Visibility { get; set; } = PostVisibility.Public;

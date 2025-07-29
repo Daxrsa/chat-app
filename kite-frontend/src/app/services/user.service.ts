@@ -12,12 +12,6 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   getLoggedInUser(): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get(`${this.apiUrl}/get-logged-in-user`, { headers });
-  }
-
-  checkIfTokenExists(): void {
-    console.log('Token from localStorage:', localStorage.getItem('token'));
+    return this.http.get(`${this.apiUrl}/get-logged-in-user`);
   }
 }

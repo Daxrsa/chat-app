@@ -1,9 +1,6 @@
-using Kite.Application.Utilities;
-using Kite.Domain.Enums;
-
 namespace Kite.Application.Models;
 
-public class PostModel
+public class CommentModel
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -16,14 +13,11 @@ public class PostModel
     public string AuthorUserName { get; set; } = string.Empty;
     public string? AuthorProfilePicture { get; set; }
     public int ReactionCount { get; set; }
-    public int CommentCount { get; set; }
-    public int ShareCount { get; set; }
+    public int? ReplyCount { get; set; }
     public bool IsReactedByCurrentUser { get; set; }
     public List<string>? Hashtags { get; set; } = new();
     public List<string>? MentionedUsers { get; set; } = new();
     public List<AttachedFileModel> Files { get; set; } = new();
     public string TimeElapsed { get; set; } = string.Empty;
-    public PostVisibility Visibility { get; set; } = PostVisibility.Public;
     public bool IsEdited { get; set; } 
-    public bool IsHidden { get; set; } 
 }

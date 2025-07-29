@@ -96,10 +96,10 @@ public class PostService(
             Visibility = request.Visibility,
             Hashtags = request.Hashtags,
             MentionedUsers = request.MentionedUsers,
-            LikeCount = 0,
+            ReactionCount = 0,
             CommentCount = 0,
             ShareCount = 0,
-            IsLikedByCurrentUser = false,
+            IsReactedByCurrentUser = false,
             IsEdited = false,
             IsHidden = false,
             Files = post.Files?.Select(file => new AttachedFileModel

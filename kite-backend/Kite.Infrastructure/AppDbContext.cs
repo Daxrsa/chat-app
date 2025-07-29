@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
     public DbSet<FriendRequest> FriendRequests { get; set; }
     public DbSet<ApplicationFile> Files { get; set; }
     public DbSet<Post> Posts { get; set; }
+    public DbSet<Comment> Comments { get; set; }
     public DbSet<Reaction> Reactions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -150,5 +151,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration
         modelBuilder.Entity<Reaction>()
             .Property(r => r.ReactionType)
             .HasConversion<int>();
+        
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Post)
+            .WithMany(p => p.Comments)
+            .HasForeignKey(c => c.PostId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.ParentComment)
+            .WithMany(c => c.Replies)
+            .HasForeignKey(c => c.ParentCommentId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.User)
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
