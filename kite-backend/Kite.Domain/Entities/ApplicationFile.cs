@@ -15,5 +15,10 @@ public class ApplicationFile : IEntity<Guid>
     public ApplicationUser User { get; set; }
     public Guid? PostId { get; set; }
     public Post? Post { get; set; }
+    public Guid? CommentId { get; set; }
+    public Comment? Comment { get; set; }
+    
+    // public Guid? MessageId { get; set; }
+    // public Message? Message { get; set; }
     public DateTimeOffset UploadedAt { get; set; }
 }

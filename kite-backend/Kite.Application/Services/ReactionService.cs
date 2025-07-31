@@ -35,6 +35,7 @@ public class ReactionService(
         {
             var newReaction = new Reaction
             {
+                Id = Guid.NewGuid(),
                 EntityId = entityId,
                 EntityType = entityType,
                 ReactionType = reactionType,

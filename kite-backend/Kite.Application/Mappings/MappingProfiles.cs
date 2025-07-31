@@ -32,6 +32,9 @@ public class MappingProfiles : Profile
 
         CreateMap<ApplicationFile, UserModel>()
             .ForMember(dest => dest.ProfilePicture, opt => opt.MapFrom<FileUrlResolver<UserModel>>());
+        
+        CreateMap<ApplicationFile, PostModel>()
+            .ForMember(dest => dest.AuthorProfilePicture, opt => opt.MapFrom<FileUrlResolver<PostModel>>());
 
         CreateMap<Post, CreatePostRequest>()
             .ForMember(dest => dest.MentionedUsers, opt => opt.MapFrom(src =>

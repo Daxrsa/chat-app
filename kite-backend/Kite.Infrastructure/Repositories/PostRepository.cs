@@ -1,4 +1,5 @@
 using Kite.Domain.Entities;
+using Kite.Domain.Enums;
 using Kite.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ public class PostRepository : GenericRepository<Post, Guid>, IPostRepository
             .Include(x => x.MentionedUsers)
             // .Include(x => x.Hashtags)
             .Include(x => x.User)
+            // .ThenInclude(u => u.Files.Where(f => f.Type == FileType.ProfilePicture))
             .Where(x => x.UserId == userId)
             .ToListAsync(cancellationToken);
     }

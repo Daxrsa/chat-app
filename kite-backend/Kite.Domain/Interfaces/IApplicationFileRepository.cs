@@ -9,4 +9,6 @@ public interface IApplicationFileRepository : IGenericRepository<ApplicationFile
     Task<ApplicationFile?> GetLatestUserFileByTypeAsync(string userId, FileType type, CancellationToken cancellationToken = default);
     Task<IEnumerable<ApplicationFile>> GetLatestUserFilesByTypeAsync(List<string> userIds,
         FileType type, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ApplicationFile>> GetFilesByPostIdAsync(Guid postId,
+        CancellationToken cancellationToken = default);
 }

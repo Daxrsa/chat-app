@@ -60,7 +60,6 @@ public class PostService(
             CreatedAt = DateTimeOffset.UtcNow,
             Hashtags = request.Hashtags,
             UserId = currentUserId,
-            TimeElapsed = Helpers.GetTimeElapsedString(DateTimeOffset.UtcNow),
             Files = applicationFiles
         };
         
@@ -113,7 +112,7 @@ public class PostService(
                 UserId = file.UserId,
                 UploadedAt = file.UploadedAt
             }).ToList() ?? new List<AttachedFileModel>(),
-            TimeElapsed = Helpers.GetTimeElapsedString(post.CreatedAt)
+            TimeElapsed = Helpers.GetTimeElapsedString(DateTimeOffset.UtcNow)
         };
 
         await postRepository.InsertAsync(post, cancellationToken);
@@ -161,7 +160,27 @@ public class PostService(
             return Result<PostModel>.Failure(new Error("Post.NotFound", "Post not found"));
         }
 
+        var user = await userManager.FindByIdAsync(post.UserId);
+
+        var authorProfilePicture =
+            await applicationFileRepository.GetLatestUserFileByTypeAsync(post.UserId, FileType.ProfilePicture,
+                cancellationToken);
+
+        var postFiles = await applicationFileRepository.GetFilesByPostIdAsync(postId, cancellationToken);
+
         var postModel = mapper.Map<PostModel>(post);
+    
+        if (user != null)
+        {
+            postModel.AuthorFirstName = user.FirstName;
+            postModel.AuthorLastName = user.LastName;
+            postModel.AuthorUserName = user.UserName ?? string.Empty;
+        }
+
+        postModel.AuthorProfilePicture = authorProfilePicture != null 
+            ? mapper.Map<AttachedFileModel>(authorProfilePicture).FilePath 
+            : null;
+        postModel.Files = mapper.Map<List<AttachedFileModel>>(postFiles) ?? new List<AttachedFileModel>();
 
         return Result<PostModel>.Success(postModel);
     }

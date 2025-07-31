@@ -6,6 +6,6 @@ public enum FileType
     Message,
     Post,
     Unknown,
-    // Comment,
+    Comment,
     // Reply
 }

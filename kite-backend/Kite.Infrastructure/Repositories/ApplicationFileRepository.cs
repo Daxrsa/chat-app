@@ -11,6 +11,14 @@ public class ApplicationFileRepository : GenericRepository<ApplicationFile, Guid
     {
     }
     
+    public async Task<IEnumerable<ApplicationFile>> GetFilesByPostIdAsync(Guid postId, CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Where(f => f.PostId == postId)
+            .OrderByDescending(f => f.UploadedAt)
+            .ToListAsync(cancellationToken);
+    }
+    
     public async Task<IEnumerable<ApplicationFile>> GetUserFilesByTypeAsync(string userId, FileType type, CancellationToken cancellationToken = default)
     {
         return await _dbSet
