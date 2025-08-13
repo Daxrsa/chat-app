@@ -7,7 +7,7 @@ public class Comment : IEntity<Guid>
     public Guid Id { get; set; }
     public string Content { get; set; } = string.Empty;
     public string UserId { get; set; } = string.Empty;
-    public Guid PostId { get; set; } = Guid.Empty;
+    public Guid PostId { get; set; } 
     public Guid? ParentCommentId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }

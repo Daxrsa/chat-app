@@ -36,22 +36,6 @@ public class PostService(
             return Result<PostModel>.Failure(new Error("User.NotFound", "User not found"));
         }
 
-        var uploadResult = await fileUploaderService.UploadFilesAsync(request.Files,
-            FileType.Post, cancellationToken);
-
-        var applicationFiles = uploadResult.Value.SuccessfulUploads.Select(fileResult =>
-            new ApplicationFile
-            {
-                Id = Guid.NewGuid(),
-                Filename = fileResult.OriginalFileName,
-                Extension = Path.GetExtension(fileResult.OriginalFileName),
-                Size = fileResult.FileSize,
-                FilePath = fileResult.FilePath,
-                Type = fileResult.Type,
-                UserId = currentUserId,
-                UploadedAt = fileResult.UploadedAt
-            }).ToList();
-
         var post = new Post
         {
             Id = Guid.NewGuid(),
@@ -60,10 +44,32 @@ public class PostService(
             CreatedAt = DateTimeOffset.UtcNow,
             Hashtags = request.Hashtags,
             UserId = currentUserId,
-            Files = applicationFiles
+            Files = []
         };
-        
-        if (request.MentionedUsers?.Count != 0)
+
+        if (request.Files != null && request.Files.Any())
+        {
+            var uploadResult = await fileUploaderService.UploadFilesAsync(request.Files,
+                FileType.Post, cancellationToken);
+
+            if (uploadResult.IsSuccess && uploadResult.Value?.SuccessfulUploads != null)
+            {
+                post.Files = uploadResult.Value.SuccessfulUploads.Select(fileResult =>
+                    new ApplicationFile
+                    {
+                        Id = Guid.NewGuid(),
+                        Filename = fileResult.OriginalFileName,
+                        Extension = Path.GetExtension(fileResult.OriginalFileName),
+                        Size = fileResult.FileSize,
+                        FilePath = fileResult.FilePath,
+                        Type = fileResult.Type,
+                        UserId = currentUserId,
+                        UploadedAt = fileResult.UploadedAt
+                    }).ToList();
+            }
+        }
+
+        if (request.MentionedUsers != null && request.MentionedUsers.Count != 0)
         {
             var users = new List<ApplicationUser>();
             foreach (var userId in request.MentionedUsers)
@@ -74,6 +80,7 @@ public class PostService(
                     users.Add(user);
                 }
             }
+
             post.MentionedUsers = users;
         }
 
@@ -111,7 +118,7 @@ public class PostService(
                 Type = file.Type,
                 UserId = file.UserId,
                 UploadedAt = file.UploadedAt
-            }).ToList() ?? new List<AttachedFileModel>(),
+            }).ToList() ?? [],
             TimeElapsed = Helpers.GetTimeElapsedString(DateTimeOffset.UtcNow)
         };
 
@@ -125,6 +132,11 @@ public class PostService(
         CancellationToken cancellationToken = default)
     {
         var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return Result<List<PostModel>>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated to create posts"));
+        }
 
         var posts = await postRepository.GetPostsForUserAsync(currentUserId, cancellationToken);
         if (posts is null)
@@ -163,13 +175,15 @@ public class PostService(
         var user = await userManager.FindByIdAsync(post.UserId);
 
         var authorProfilePicture =
-            await applicationFileRepository.GetLatestUserFileByTypeAsync(post.UserId, FileType.ProfilePicture,
+            await applicationFileRepository.GetLatestUserFileByTypeAsync(post.UserId,
+                FileType.ProfilePicture,
                 cancellationToken);
 
-        var postFiles = await applicationFileRepository.GetFilesByPostIdAsync(postId, cancellationToken);
+        var postFiles =
+            await applicationFileRepository.GetFilesByPostIdAsync(postId, cancellationToken);
 
         var postModel = mapper.Map<PostModel>(post);
-    
+
         if (user != null)
         {
             postModel.AuthorFirstName = user.FirstName;
@@ -177,10 +191,11 @@ public class PostService(
             postModel.AuthorUserName = user.UserName ?? string.Empty;
         }
 
-        postModel.AuthorProfilePicture = authorProfilePicture != null 
-            ? mapper.Map<AttachedFileModel>(authorProfilePicture).FilePath 
+        postModel.AuthorProfilePicture = authorProfilePicture != null
+            ? mapper.Map<AttachedFileModel>(authorProfilePicture).FilePath
             : null;
-        postModel.Files = mapper.Map<List<AttachedFileModel>>(postFiles) ?? new List<AttachedFileModel>();
+        postModel.Files = mapper.Map<List<AttachedFileModel>>(postFiles) ??
+                          new List<AttachedFileModel>();
 
         return Result<PostModel>.Success(postModel);
     }
@@ -206,8 +221,8 @@ public class PostService(
             return Result<PostModel>.Failure(new Error("Post.Unauthorized",
                 "You are not authorized to update this post"));
         }
-        
-        if (request.MentionedUsers?.Count != 0)
+
+        if (request.MentionedUsers != null && request.MentionedUsers.Count != 0)
         {
             var users = new List<ApplicationUser>();
             foreach (var userId in request.MentionedUsers)
@@ -218,19 +233,21 @@ public class PostService(
                     users.Add(user);
                 }
             }
+
             post.MentionedUsers = users;
         }
-        
-        post.Title = request.Title;
-        post.Body = request.Body;
+
+        post.Title = request.Title ?? string.Empty;
+        post.Body = request.Body ?? string.Empty;
         post.Hashtags = request.Hashtags;
         post.Visibility = request.Visibility ?? post.Visibility;
         post.IsEdited = true;
         post.UpdatedAt = DateTimeOffset.UtcNow;
-        
+
         if (request.Files != null)
         {
-            await fileUploaderService.UploadFilesAsync(request.Files, FileType.Post, cancellationToken);
+            await fileUploaderService.UploadFilesAsync(request.Files, FileType.Post,
+                cancellationToken);
         }
 
         await postRepository.UpdateAsync(post, cancellationToken);
@@ -253,7 +270,7 @@ public class PostService(
         }
 
         var post = await postRepository.GetByIdAsync(postId, cancellationToken);
-        if (post.UserId != currentUserId)
+        if (post?.UserId != currentUserId)
         {
             return Result<bool>.Failure(new Error("Post.Unauthorized",
                 "You are not authorized to delete this post"));

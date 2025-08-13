@@ -7,7 +7,7 @@ namespace Kite.Web.Controllers;
 public class ReactionController(IReactionService reactionService) : BaseApiController
 {
     [HttpPost]
-    public async Task<IActionResult> AddReaction([FromBody] AddReactionRequest request,
+    public async Task<IActionResult> AddOrUpdateReaction([FromBody] AddReactionRequest request,
         CancellationToken cancellationToken = default)
         => HandleResult(await reactionService.AddOrUpdateReactionAsync(request.EntityType,
             request.EntityId,
