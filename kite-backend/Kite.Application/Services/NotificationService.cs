@@ -4,7 +4,6 @@ using Kite.Application.Models;
 using Kite.Application.Utilities;
 using Kite.Domain.Common;
 using Kite.Domain.Entities;
-using Kite.Domain.Enums;
 using Kite.Domain.Interfaces;
 
 namespace Kite.Application.Services;
@@ -23,6 +22,11 @@ public class NotificationService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<NotificationModel>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated for notification creation."));
+            }
             var notification = mapper.Map<Notification>(request);
             var response = new NotificationModel
             {
@@ -55,6 +59,11 @@ public class NotificationService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<List<NotificationModel>>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated to view their notifications."));
+            }
             var notifications =
                 await notificationRepository.GetNotificationsForUserAsync(currentUserId,
                     cancellationToken);

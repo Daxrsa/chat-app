@@ -24,6 +24,11 @@ public class FriendRequestService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<string>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated to send friend requests"));
+            }
 
             if (string.IsNullOrEmpty(targetUserId))
             {
@@ -102,6 +107,13 @@ public class FriendRequestService(
 
             var friendshipRequest =
                 await friendRequestRepository.GetByIdAsync(requestId, cancellationToken);
+            
+            if (friendshipRequest == null)
+            {
+                return Result<string>.Failure(
+                    new Error("FriendRequest.NotFound", "Friend request not found"));
+            }
+            
             if (friendshipRequest.Status != FriendRequestStatus.Pending)
             {
                 return Result<string>.Failure(
@@ -110,7 +122,7 @@ public class FriendRequestService(
             }
 
             friendshipRequest.Status = FriendRequestStatus.Accepted;
-
+            
             var newFriendship = new Friendship
             {
                 Id = Guid.NewGuid(),
@@ -118,15 +130,13 @@ public class FriendRequestService(
                 FriendRequest = friendshipRequest,
                 CreatedAt = DateTime.UtcNow
             };
-
+            
             friendshipRequest.Friendship = newFriendship;
 
             await friendRequestRepository.UpdateAsync(friendshipRequest, cancellationToken);
-
             await friendshipRepository.InsertAsync(newFriendship, cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
-
+            
             return Result<string>.Success();
         }
         catch (Exception ex)
@@ -166,9 +176,7 @@ public class FriendRequestService(
             friendship.Status = FriendRequestStatus.Rejected;
 
             await friendRequestRepository.UpdateAsync(friendship, cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
-
             return Result<string>.Success("Friend request rejected successfully");
         }
         catch (Exception ex)
@@ -221,9 +229,7 @@ public class FriendRequestService(
             friendRequest.Status = FriendRequestStatus.Withdrawn;
 
             await friendRequestRepository.UpdateAsync(friendRequest, cancellationToken);
-
             await unitOfWork.SaveChangesAsync(cancellationToken);
-
             return Result<string>.Success("Friend request withdrawn successfully");
         }
         catch (Exception ex)
@@ -239,9 +245,20 @@ public class FriendRequestService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
+            
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<IEnumerable<FriendRequestModel>>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated to send friend requests"));
+            }
 
             var pendingRequests =
                 await friendRequestRepository.GetPendingReceivedFriendRequestsAsync(currentUserId);
+            
+            if (pendingRequests is null)
+            {
+                return Result<IEnumerable<FriendRequestModel>>.Success(new List<FriendRequestModel>());
+            }
 
             var requestModels = new List<FriendRequestModel>();
 
@@ -257,7 +274,7 @@ public class FriendRequestService(
                         SenderId = request.SenderId,
                         SenderFirstName = sender.FirstName,
                         SenderLastName = sender.LastName,
-                        SenderUsername = sender.UserName,
+                        SenderUsername = sender.UserName ?? string.Empty,
                         Status = request.Status
                     });
                 }
@@ -278,9 +295,20 @@ public class FriendRequestService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
+            
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<IEnumerable<FriendRequestModel>>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated to send friend requests"));
+            }
 
             var pendingSentRequests =
                 await friendRequestRepository.GetPendingSentFriendRequestsAsync(currentUserId);
+            
+            if (pendingSentRequests is null)
+            {
+                return Result<IEnumerable<FriendRequestModel>>.Success(new List<FriendRequestModel>());
+            }
 
             var requestModels = new List<FriendRequestModel>();
 
@@ -296,7 +324,7 @@ public class FriendRequestService(
                         ReceiverId = request.ReceiverId,
                         ReceiverFirstName = receiver.FirstName,
                         ReceiverLastName = receiver.LastName,
-                        ReceiverUsername = receiver.UserName,
+                        ReceiverUsername = receiver.UserName ?? string.Empty,
                         CreatedAt = request.CreatedAt,
                         Status = request.Status,
                         TimeElapsed = Helpers.GetTimeElapsedString(request.CreatedAt)
