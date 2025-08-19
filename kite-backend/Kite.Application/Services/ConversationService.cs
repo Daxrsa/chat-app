@@ -13,6 +13,7 @@ public class ConversationService(
     IConversationRepository conversationRepository,
     UserManager<ApplicationUser> userManager,
     IUnitOfWork unitOfWork,
+    INotificationService notificationService,
     IApplicationFileRepository applicationFileRepository
 ) : IConversationService
 {
@@ -114,11 +115,21 @@ public class ConversationService(
             Participants = participantModels,
             UnreadCount = 0
         };
+        
+        foreach (var participantId in distinctParticipantIds.Where(id => id != currentUserId))
+        {
+            var notificationModel = new NotificationModel
+            {
+                SenderId = currentUserId,
+                ReceiverId = participantId,
+                Message = $"You have been added to a conversation by {userAccessor.GetCurrentUserFirstName()} {userAccessor.GetCurrentUserLastName()}",
+                Type = NotificationType.Conversation,
+                IsRead = false,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
 
-        // Notify other participants via SignalR
-        // var otherParticipantIds = distinctParticipantIds.Where(id => id != currentUserId);
-        // await hubContext.Clients.Users(otherParticipantIds)
-        //     .SendAsync("ConversationCreated", conversationModel, cancellationToken);
+            await notificationService.CreateNotificationAsync(notificationModel, cancellationToken);
+        }
 
         return Result<ConversationModel>.Success(conversationModel);
     }
