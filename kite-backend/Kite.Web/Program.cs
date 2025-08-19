@@ -90,6 +90,8 @@ builder.Services.AddScoped<IFileUrlService, FileUrlService>();
 builder.Services.AddScoped<IReactionService, ReactionService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IConversationService, ConversationService>();
+builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();

@@ -16,8 +16,7 @@ public class ConversationService(
     IApplicationFileRepository applicationFileRepository
 ) : IConversationService
 {
-    public async Task<Result<ConversationModel>> CreateConversationAsync(
-        List<string> participantIds, CancellationToken cancellationToken = default)
+    public async Task<Result<ConversationModel>> CreateConversationAsync(List<string> participantIds, CancellationToken cancellationToken = default)
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrEmpty(currentUserId))
@@ -40,10 +39,10 @@ public class ConversationService(
                 "A conversation requires at least two participants."));
         }
 
-        if (distinctParticipantIds.Count > 10)
+        if (distinctParticipantIds.Count > 20)
         {
             return Result<ConversationModel>.Failure(new Error("Conversation.TooManyParticipants",
-                "A conversation cannot have more than 10 participants."));
+                "A conversation cannot have more than 20 participants."));
         }
 
         var existingConversation =
@@ -146,8 +145,8 @@ public class ConversationService(
 
             var unreadCount = conversation.Messages
                 .Count(m =>
-                    m.SentAt > currentUserParticipant.LastReadTimestamp &&
-                    m.AuthorId != currentUserId);
+                    m.SentAt > currentUserParticipant.LastReadAt &&
+                    m.SenderId != currentUserId);
 
             var participantModels = new List<ConversationParticipantModel>();
             foreach (var participant in conversation.Participants)

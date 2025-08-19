@@ -7,10 +7,12 @@ public abstract class GenericRepository<TEntity, TKey> : IGenericRepository<TEnt
     where TEntity : class, IEntity<TKey>
 {
     protected readonly DbSet<TEntity> _dbSet;
+    protected readonly AppDbContext _context;
 
     protected GenericRepository(AppDbContext context)
     {
         _dbSet = context.Set<TEntity>();
+        _context = context;
     }
 
     public async Task<TEntity?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
