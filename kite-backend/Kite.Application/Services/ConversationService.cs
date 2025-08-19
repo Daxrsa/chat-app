@@ -199,15 +199,49 @@ public class ConversationService(
         return Result<IEnumerable<ConversationModel>>.Success(conversationModels);
     }
 
-    public Task<Result<IEnumerable<MessageModel>>> GetConversationMessagesAsync(Guid conversationId,
+    public async Task<Result<IEnumerable<MessageModel>>> GetConversationMessagesAsync(Guid conversationId,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return Result<IEnumerable<MessageModel>>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated."));
+        }
 
-    public Task<Result<bool>> MarkConversationAsReadAsync(Guid conversationId,
-        CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        var conversation = await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        if (conversation == null)
+        {
+            return Result<IEnumerable<MessageModel>>.Failure(new Error("Conversation.NotFound",
+                "Conversation not found."));
+        }
+        
+        var isParticipant = conversation.Participants.Any(p => p.UserId == currentUserId);
+        if (!isParticipant)
+        {
+            return Result<IEnumerable<MessageModel>>.Failure(new Error("Conversation.Unauthorized",
+                "User is not a participant in this conversation."));
+        }
+
+        var messageModels = new List<MessageModel>();
+        foreach (var message in conversation.Messages.OrderBy(m => m.SentAt))
+        {
+            var sender = conversation.Participants.First(p => p.UserId == message.SenderId);
+            var senderProfilePicture = await applicationFileRepository.GetLatestUserFileByTypeAsync(
+                message.SenderId, FileType.ProfilePicture, cancellationToken);
+
+            messageModels.Add(new MessageModel
+            {
+                Id = message.Id,
+                ConversationId = message.ConversationId,
+                SenderId = message.SenderId,
+                SenderName = $"{sender.User.FirstName} {sender.User.LastName}".Trim(),
+                SenderProfilePictureUrl = senderProfilePicture?.FilePath ?? string.Empty,
+                Content = message.Content,
+                SentAt = message.SentAt
+            });
+        }
+
+        return Result<IEnumerable<MessageModel>>.Success(messageModels);
     }
 }

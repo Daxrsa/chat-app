@@ -1,0 +1,19 @@
+using Kite.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Kite.Web.Controllers;
+
+public class ConversationController(IConversationService conversationService) : BaseApiController
+{
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateConversation([FromBody] List<string> participantIds)
+        => HandleResult(await conversationService.CreateConversationAsync(participantIds));
+
+    [HttpGet("user-conversations")]
+    public async Task<IActionResult> GetUserConversations()
+        => HandleResult(await conversationService.GetUserConversationsAsync());
+
+    [HttpGet("{conversationId}/messages")]
+    public async Task<IActionResult> GetConversationMessages(Guid conversationId)
+        => HandleResult(await conversationService.GetConversationMessagesAsync(conversationId));
+}
