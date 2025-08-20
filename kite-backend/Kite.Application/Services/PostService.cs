@@ -129,41 +129,6 @@ public class PostService(
         return Result<PostModel>.Success(postModel);
     }
 
-    public async Task<Result<List<PostModel>>> GetPostsForCurrentUserAsync(
-        CancellationToken cancellationToken = default)
-    {
-        var currentUserId = userAccessor.GetCurrentUserId();
-        if (string.IsNullOrEmpty(currentUserId))
-        {
-            return Result<List<PostModel>>.Failure(new Error("Auth.Unauthorized",
-                "User must be authenticated to create posts"));
-        }
-
-        var posts = await postRepository.GetPostsForUserAsync(currentUserId, cancellationToken);
-        if (posts is null)
-        {
-            return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
-        }
-
-        var postModels = mapper.Map<List<PostModel>>(posts);
-
-        return Result<List<PostModel>>.Success(postModels);
-    }
-
-    public async Task<Result<List<PostModel>>> GetPostsForUserAsync(string userId,
-        CancellationToken cancellationToken = default)
-    {
-        var posts = await postRepository.GetPostsForUserAsync(userId, cancellationToken);
-        if (posts is null)
-        {
-            return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
-        }
-
-        var postModels = mapper.Map<List<PostModel>>(posts);
-
-        return Result<List<PostModel>>.Success(postModels);
-    }
-
     public async Task<Result<PostModel>> GetSinglePostAsync(Guid postId,
         CancellationToken cancellationToken = default)
     {

@@ -8,5 +8,6 @@ public class ConversationModel
     public string TimeElapsed { get; set; } = string.Empty;
     public MessageModel? LastMessage { get; set; }
     public int UnreadCount { get; set; }
+    public List<ConversationParticipantModel> Moderators { get; set; } = [];
     public List<ConversationParticipantModel> Participants { get; set; } = [];
 }

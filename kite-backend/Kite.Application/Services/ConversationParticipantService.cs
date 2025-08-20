@@ -22,36 +22,27 @@ public class ConversationParticipantService(
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrEmpty(currentUserId))
-        {
             return Result<ConversationParticipantModel>.Failure(new Error("Auth.Unauthorized",
                 "User must be authenticated."));
-        }
 
-        var conversation = await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        var conversation =
+            await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
         if (conversation == null)
-        {
             return Result<ConversationParticipantModel>.Failure(new Error("Conversation.NotFound",
                 "The specified conversation does not exist."));
-        }
 
         if (conversation.Participants.All(p => p.UserId != currentUserId))
-        {
             return Result<ConversationParticipantModel>.Failure(new Error("Auth.Forbidden",
                 "You are not a participant of this conversation."));
-        }
 
         if (conversation.Participants.Any(p => p.UserId == userId))
-        {
             return Result<ConversationParticipantModel>.Failure(new Error("Participant.Exists",
                 "This user is already a participant in the conversation."));
-        }
 
         if (conversation.Participants.Count >= 10)
-        {
             return Result<ConversationParticipantModel>.Failure(new Error(
                 "Conversation.ParticipantLimitReached",
                 "The conversation has reached its maximum number of participants."));
-        }
 
         var userToAdd = await userManager.FindByIdAsync(userId);
         if (userToAdd == null)
@@ -93,67 +84,61 @@ public class ConversationParticipantService(
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrEmpty(currentUserId))
-        {
             return Result<bool>.Failure(new Error("Auth.Unauthorized",
                 "User must be authenticated."));
-        }
 
-        var conversation = await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        var conversation =
+            await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
 
         if (conversation == null)
-        {
             return Result<bool>.Failure(new Error("Conversation.NotFound",
                 "The specified conversation does not exist."));
-        }
 
         if (conversation.Participants.All(p => p.UserId != currentUserId))
-        {
             return Result<bool>.Failure(new Error("Auth.Forbidden",
                 "You are not a participant of this conversation."));
-        }
 
         var participantToRemove = conversation.Participants.FirstOrDefault(p => p.UserId == userId);
         if (participantToRemove == null)
-        {
             return Result<bool>.Failure(new Error("Participant.NotFound",
                 "The specified user is not a participant in this conversation."));
-        }
 
         conversation.Participants.Remove(participantToRemove);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return Result<bool>.Success(true);
     }
-    
+
     public async Task<Result<IEnumerable<ConversationParticipantModel>>> GetNonParticipantsAsync(
         Guid conversationId, CancellationToken cancellationToken = default)
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrEmpty(currentUserId))
-        {
-            return Result<IEnumerable<ConversationParticipantModel>>.Failure(new Error("Auth.Unauthorized",
+            return Result<IEnumerable<ConversationParticipantModel>>.Failure(new Error(
+                "Auth.Unauthorized",
                 "User must be authenticated."));
-        }
 
-        var conversation = await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        var conversation =
+            await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
         if (conversation == null)
-        {
-            return Result<IEnumerable<ConversationParticipantModel>>.Failure(new Error("Conversation.NotFound",
+            return Result<IEnumerable<ConversationParticipantModel>>.Failure(new Error(
+                "Conversation.NotFound",
                 "The specified conversation does not exist."));
-        }
 
         if (conversation.Participants.All(p => p.UserId != currentUserId))
-        {
-            return Result<IEnumerable<ConversationParticipantModel>>.Failure(new Error("Auth.Forbidden",
+            return Result<IEnumerable<ConversationParticipantModel>>.Failure(new Error(
+                "Auth.Forbidden",
                 "You are not a participant of this conversation."));
-        }
-        
-        var nonParticipantUsers = await conversationParticipantRepository.GetNonParticipantsAsync(conversationId, cancellationToken);
+
+        var nonParticipantUsers =
+            await conversationParticipantRepository.GetNonParticipantsAsync(conversationId,
+                cancellationToken);
 
         var nonParticipantModels = new List<ConversationParticipantModel>();
         foreach (var user in nonParticipantUsers)
         {
             var profilePicture =
-                await applicationFileRepository.GetLatestUserFileByTypeAsync(user.Id, FileType.ProfilePicture,
+                await applicationFileRepository.GetLatestUserFileByTypeAsync(user.Id,
+                    FileType.ProfilePicture,
                     cancellationToken);
 
             nonParticipantModels.Add(new ConversationParticipantModel
@@ -174,23 +159,19 @@ public class ConversationParticipantService(
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrEmpty(currentUserId))
-        {
             return Result<List<ConversationParticipantModel>>.Failure(new Error("Auth.Unauthorized",
                 "User must be authenticated."));
-        }
 
-        var conversation = await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        var conversation =
+            await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
         if (conversation == null)
-        {
-            return Result<List<ConversationParticipantModel>>.Failure(new Error("Conversation.NotFound",
+            return Result<List<ConversationParticipantModel>>.Failure(new Error(
+                "Conversation.NotFound",
                 "The specified conversation does not exist."));
-        }
 
         if (conversation.Participants.All(p => p.UserId != currentUserId))
-        {
             return Result<List<ConversationParticipantModel>>.Failure(new Error("Auth.Forbidden",
                 "You are not a participant of this conversation."));
-        }
 
         var participantModels = new List<ConversationParticipantModel>();
         foreach (var participant in conversation.Participants)
@@ -214,5 +195,82 @@ public class ConversationParticipantService(
         }
 
         return Result<List<ConversationParticipantModel>>.Success(participantModels);
+    }
+
+    public async Task<Result<bool>> TransferOwnershipAsync(Guid conversationId,
+        string newOwnerUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return Result<bool>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated."));
+
+        if (conversationId == Guid.Empty || string.IsNullOrWhiteSpace(newOwnerUserId))
+            return Result<bool>.Failure(new Error("Conversation.InvalidInput",
+                "Conversation and user are required."));
+
+        var conversation =
+            await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        if (conversation is null)
+            return Result<bool>.Failure(new Error("Conversation.NotFound",
+                "Conversation not found."));
+
+        if (conversation.OwnerId != currentUserId)
+            return Result<bool>.Failure(new Error("Conversation.Forbidden",
+                "Only the owner can transfer ownership."));
+
+        if (newOwnerUserId == currentUserId)
+            return Result<bool>.Failure(new Error("Conversation.InvalidInput",
+                "You are already the owner of this conversation."));
+
+        var isParticipant = conversation.Participants.Any(p => p.UserId == newOwnerUserId);
+        if (!isParticipant)
+            return Result<bool>.Failure(new Error("Participant.NotFound",
+                "New owner must be a participant."));
+
+        conversation.OwnerId = newOwnerUserId;
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return Result<bool>.Success(true);
+    }
+
+    public async Task<Result<bool>> PromoteToModeratorAsync(Guid conversationId, string userId,
+        CancellationToken cancellationToken = default)
+    {
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return Result<bool>.Failure(new Error("Auth.Unauthorized", "User must be authenticated."));
+
+        if (conversationId == Guid.Empty || string.IsNullOrWhiteSpace(userId))
+            return Result<bool>.Failure(new Error("Conversation.InvalidInput", "Conversation and user are required."));
+
+        var conversation = await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        if (conversation is null)
+            return Result<bool>.Failure(new Error("Conversation.NotFound", "Conversation not found."));
+
+        if (conversation.OwnerId != currentUserId)
+            return Result<bool>.Failure(new Error("Conversation.Forbidden", "Only the owner can promote admins."));
+
+        if (userId == conversation.OwnerId)
+            return Result<bool>.Failure(new Error("Conversation.InvalidOperation", "Owner cannot be promoted."));
+
+        var participant = conversation.Participants.FirstOrDefault(p => p.UserId == userId);
+        if (participant is null)
+            return Result<bool>.Failure(new Error("Participant.NotFound", "User is not a participant of this conversation."));
+
+        if (participant.IsAdmin)
+            return Result<bool>.Success();
+
+        participant.IsAdmin = true;
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result<bool>.Success();
+    }
+
+    public Task<Result<bool>> DemoteModeratorAsync(Guid conversationId, string userId,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 }

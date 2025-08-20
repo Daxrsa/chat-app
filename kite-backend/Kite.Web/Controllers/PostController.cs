@@ -10,14 +10,6 @@ public class PostController(IPostService postService) : BaseApiController
     public async Task<IActionResult> CreatePost([FromForm] CreatePostRequest model)
         => HandleResult(await postService.CreatePostAsync(model));
 
-    [HttpGet("user-posts")]
-    public async Task<IActionResult> GetCurrentUserPosts()
-        => HandleResult(await postService.GetPostsForCurrentUserAsync());
-
-    [HttpGet("user/{userId}/posts")]
-    public async Task<IActionResult> GetUserPosts(string userId)
-        => HandleResult(await postService.GetPostsForUserAsync(userId));
-
     [HttpGet("{postId:guid}")]
     public async Task<IActionResult> GetSinglePost(Guid postId)
         => HandleResult(await postService.GetSinglePostAsync(postId));

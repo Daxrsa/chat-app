@@ -13,9 +13,9 @@ public interface IConversationParticipantService
         Guid conversationId, CancellationToken cancellationToken = default);
     Task<Result<List<ConversationParticipantModel>>> GetParticipantsAsync(Guid conversationId,
         CancellationToken cancellationToken = default);
-    Task<Result<bool>> PromoteToAdminAsync(Guid conversationId, string userId,
+    Task<Result<bool>> PromoteToModeratorAsync(Guid conversationId, string userId,
         CancellationToken cancellationToken = default);
-    Task<Result<bool>> DemoteAdminAsync(Guid conversationId, string userId,
+    Task<Result<bool>> DemoteModeratorAsync(Guid conversationId, string userId,
         CancellationToken cancellationToken = default);
     Task<Result<bool>> TransferOwnershipAsync(Guid conversationId, string newOwnerUserId,
         CancellationToken cancellationToken = default);

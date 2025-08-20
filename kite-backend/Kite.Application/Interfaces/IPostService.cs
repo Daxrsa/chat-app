@@ -7,8 +7,6 @@ namespace Kite.Application.Interfaces;
 public interface IPostService
 {
     Task<Result<PostModel>> CreatePostAsync(CreatePostRequest request, CancellationToken cancellationToken = default);
-    Task<Result<List<PostModel>>> GetPostsForCurrentUserAsync(CancellationToken cancellationToken = default); //this needs to be moved to IUserService
-    Task<Result<List<PostModel>>> GetPostsForUserAsync(string userId, CancellationToken cancellationToken = default); //this needs to be moved to IUserService
     Task<Result<PostModel>> GetSinglePostAsync(Guid postId, CancellationToken cancellationToken = default);
     Task<Result<PostModel>> UpdatePostAsync(Guid postId, UpdatePostRequest request, CancellationToken cancellationToken = default);
     Task<Result<bool>> DeletePostAsync(Guid postId, CancellationToken cancellationToken = default);
