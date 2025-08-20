@@ -13,7 +13,7 @@ public class ConversationController(IConversationService conversationService) : 
     public async Task<IActionResult> GetUserConversations()
         => HandleResult(await conversationService.GetUserConversationsAsync());
 
-    [HttpGet("{conversationId}/messages")]
+    [HttpGet("{conversationId:guid}/messages")]
     public async Task<IActionResult> GetConversationMessages(Guid conversationId)
         => HandleResult(await conversationService.GetConversationMessagesAsync(conversationId));
 }

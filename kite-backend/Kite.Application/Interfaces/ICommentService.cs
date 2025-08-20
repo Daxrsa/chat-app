@@ -11,4 +11,6 @@ public interface ICommentService
     Task<Result<CommentModel>> AddReplyAsync(CreateCommentRequest request, CancellationToken cancellationToken = default);
     Task<Result<CommentModel>> UpdateCommentAsync(Guid commentId, string content, CancellationToken cancellationToken = default);
     Task<Result<bool>> DeleteCommentAsync(Guid commentId, CancellationToken cancellationToken = default);
+    Task<Result<int>> GetCommentTotalReactionsAsync(Guid postId,
+        CancellationToken cancellationToken = default);
 }

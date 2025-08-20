@@ -12,6 +12,7 @@ public interface IPostService
     Task<Result<PostModel>> GetSinglePostAsync(Guid postId, CancellationToken cancellationToken = default);
     Task<Result<PostModel>> UpdatePostAsync(Guid postId, UpdatePostRequest request, CancellationToken cancellationToken = default);
     Task<Result<bool>> DeletePostAsync(Guid postId, CancellationToken cancellationToken = default);
+    Task<Result<int>> GetPostTotalReactionsAsync(Guid postId, CancellationToken cancellationToken = default);
 
     // // Feed and discovery
     // Task<Result<List<PostModel>>> GetUserFeedAsync(CancellationToken cancellationToken = default);
@@ -22,10 +23,7 @@ public interface IPostService
     // Task<Result<List<PostModel>>> GetPostsByHashtagAsync(string hashtag, CancellationToken cancellationToken = default);
     //
     // // Engagement features
-    // Task<Result<string>> LikePostAsync(Guid postId, CancellationToken cancellationToken = default);
-    // Task<Result<string>> UnlikePostAsync(Guid postId, CancellationToken cancellationToken = default);
     // Task<Result<bool>> IsPostLikedByUserAsync(Guid postId, CancellationToken cancellationToken = default);
-    // Task<Result<int>> GetPostLikeCountAsync(Guid postId, CancellationToken cancellationToken = default);
     //
     // // Privacy and moderation
     // Task<Result<bool>> ReportPostAsync(Guid postId, string reason, CancellationToken cancellationToken = default);

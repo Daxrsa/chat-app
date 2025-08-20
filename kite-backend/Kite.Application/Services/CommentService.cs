@@ -15,6 +15,7 @@ public class CommentService(
     IFileUploaderService fileUploaderService,
     ICommentRepository commentRepository,
     IApplicationFileRepository applicationFileRepository,
+    IReactionRepository reactionRepository,
     IUnitOfWork unitOfWork) : ICommentService
 {
     public async Task<Result<CommentModel>> AddCommentAsync(CreateCommentRequest request,
@@ -257,5 +258,11 @@ public class CommentService(
         await commentRepository.DeleteAsync(comment, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return Result<bool>.Success();
+    }
+    
+    public async Task<Result<int>> GetCommentTotalReactionsAsync(Guid postId, CancellationToken cancellationToken = default)
+    {
+        var totalReactions = await reactionRepository.GetTotalReactionsByEntityAsync(postId, EntityType.Comment, cancellationToken);
+        return Result<int>.Success(totalReactions);
     }
 }

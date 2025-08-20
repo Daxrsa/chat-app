@@ -18,15 +18,20 @@ public class PostController(IPostService postService) : BaseApiController
     public async Task<IActionResult> GetUserPosts(string userId)
         => HandleResult(await postService.GetPostsForUserAsync(userId));
 
-    [HttpGet("{postId}")]
+    [HttpGet("{postId:guid}")]
     public async Task<IActionResult> GetSinglePost(Guid postId)
         => HandleResult(await postService.GetSinglePostAsync(postId));
 
-    [HttpPut("{postId}")]
+    [HttpPut("{postId:guid}")]
     public async Task<IActionResult> UpdatePost(Guid postId, [FromForm] UpdatePostRequest model)
         => HandleResult(await postService.UpdatePostAsync(postId, model));
 
-    [HttpDelete("{postId}")]
+    [HttpDelete("{postId:guid}")]
     public async Task<IActionResult> DeletePost(Guid postId)
         => HandleResult(await postService.DeletePostAsync(postId));
+
+    [HttpGet("{postId}/reactions/count")]
+    public async Task<IActionResult> GetPostTotalReactions(Guid postId,
+        CancellationToken cancellationToken = default)
+        => HandleResult(await postService.GetPostTotalReactionsAsync(postId, cancellationToken));
 }

@@ -13,6 +13,7 @@ namespace Kite.Application.Services;
 
 public class PostService(
     IUserAccessor userAccessor,
+    IReactionRepository reactionRepository,
     UserManager<ApplicationUser> userManager,
     IPostRepository postRepository,
     IApplicationFileRepository applicationFileRepository,
@@ -280,5 +281,11 @@ public class PostService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<bool>.Success();
+    }
+    
+    public async Task<Result<int>> GetPostTotalReactionsAsync(Guid postId, CancellationToken cancellationToken = default)
+    {
+        var totalReactions = await reactionRepository.GetTotalReactionsByEntityAsync(postId, EntityType.Post, cancellationToken);
+        return Result<int>.Success(totalReactions);
     }
 }

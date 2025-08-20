@@ -12,4 +12,8 @@ public class FriendController(IFriendshipService friendshipService) : BaseApiCon
     [HttpDelete("remove-friend")]
     public async Task<IActionResult> RemoveFriend(string targetId)
         => HandleResult(await friendshipService.RemoveFriendAsync(targetId));
+    
+    [HttpGet("mutual-friends/{targetUserId}")]
+    public async Task<IActionResult> GetMutualFriends(string targetUserId)
+        => HandleResult(await friendshipService.GetMutualFriendsAsync(targetUserId));
 }

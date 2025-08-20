@@ -11,11 +11,11 @@ public class NotificationController(INotificationService notificationService) : 
     public Task<Result<List<NotificationModel>>> GetAllNotifications(CancellationToken cancellationToken) =>
         notificationService.GetNotificationsForUserAsync(cancellationToken);
 
-    [HttpPut("mark-as-read/{id}")]
+    [HttpPut("mark-as-read/{id:guid}")]
     public Task<Result<bool>> MarkAsRead(Guid id, CancellationToken cancellationToken) =>
         notificationService.MarkNotificationAsReadAsync(id, cancellationToken);
 
-    [HttpDelete("delete-notification/{id}")]
+    [HttpDelete("delete-notification/{id:guid}")]
     public Task<Result<bool>> DeleteNotification(Guid id, CancellationToken cancellationToken) =>
         notificationService.DeleteNotificationAsync(id, cancellationToken);
 }

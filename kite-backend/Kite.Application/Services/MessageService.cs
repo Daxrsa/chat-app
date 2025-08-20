@@ -20,4 +20,9 @@ public class MessageService : IMessageService
     {
         throw new NotImplementedException();
     }
+
+    public Task<Result<int>> GetMessageTotalReactionsAsync(Guid messageId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

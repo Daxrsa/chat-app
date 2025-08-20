@@ -16,14 +16,19 @@ public class CommentController(ICommentService commentService) : BaseApiControll
         CancellationToken cancellationToken = default)
         => HandleResult(await commentService.AddReplyAsync(request, cancellationToken));
 
-    [HttpPut("{commentId}")]
+    [HttpPut("{commentId:guid}")]
     public async Task<IActionResult> UpdateComment(Guid commentId, [FromBody] string content,
         CancellationToken cancellationToken = default)
         => HandleResult(
             await commentService.UpdateCommentAsync(commentId, content, cancellationToken));
 
-    [HttpDelete("{commentId}")]
+    [HttpDelete("{commentId:guid}")]
     public async Task<IActionResult> DeleteComment(Guid commentId,
         CancellationToken cancellationToken = default)
         => HandleResult(await commentService.DeleteCommentAsync(commentId, cancellationToken));
+    
+    [HttpGet("{commentId:guid}/reactions/count")]
+    public async Task<IActionResult> GetCommentTotalReactions(Guid commentId,
+        CancellationToken cancellationToken = default)
+        => HandleResult(await commentService.GetCommentTotalReactionsAsync(commentId, cancellationToken));
 }

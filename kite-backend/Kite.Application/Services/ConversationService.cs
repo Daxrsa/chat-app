@@ -59,6 +59,8 @@ public class ConversationService(
         {
             Id = Guid.NewGuid(),
             CreatedAt = DateTimeOffset.UtcNow,
+            OwnerId = currentUserId,
+            Admins = [],
             Participants = []
         };
 

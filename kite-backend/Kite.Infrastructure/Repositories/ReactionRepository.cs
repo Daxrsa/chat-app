@@ -18,4 +18,11 @@ public class ReactionRepository : GenericRepository<Reaction, Guid>, IReactionRe
                                                      r.EntityType == entityType &&
                                                      r.UserId == userId, cancellationToken);
     }
+
+    public async Task<int> GetTotalReactionsByEntityAsync(Guid entityId, EntityType entityType,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet.CountAsync(r => r.EntityId == entityId && r.EntityType == entityType,
+            cancellationToken);
+    }
 }

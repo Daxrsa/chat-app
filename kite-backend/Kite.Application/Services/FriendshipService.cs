@@ -14,6 +14,7 @@ public class FriendshipService(
     IFriendRequestRepository friendRequestRepository,
     IUnitOfWork unitOfWork,
     IUserRepository userRepository,
+    IApplicationFileRepository applicationFileRepository,
     IFriendshipRepository friendshipRepository) : IFriendshipService
 {
     public async Task<Result<string>> RemoveFriendAsync(string friendUserId,
@@ -22,6 +23,11 @@ public class FriendshipService(
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<string>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated."));
+            }
 
             if (string.IsNullOrEmpty(friendUserId))
             {
@@ -37,7 +43,8 @@ public class FriendshipService(
             }
 
             var existingFriendship =
-                await friendshipRepository.CheckIfFrienshipExists(currentUserId, friendUserId, cancellationToken);
+                await friendshipRepository.CheckIfFrienshipExists(currentUserId, friendUserId,
+                    cancellationToken);
             if (existingFriendship == null)
             {
                 return Result<string>.Failure(
@@ -68,14 +75,22 @@ public class FriendshipService(
                     $"Failed to remove friend: {ex.Message}"));
         }
     }
-    
-    public async Task<Result<IEnumerable<UserModel>>> GetFriendsAsync()
+
+    public async Task<Result<IEnumerable<UserModel>>> GetFriendsAsync(
+        CancellationToken cancellationToken = default)
     {
         try
         {
             var currentUserId = userAccessor.GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<IEnumerable<UserModel>>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated."));
+            }
+
             var friendships =
-                await friendRequestRepository.GetAcceptedFriendRequestForUserAsync(currentUserId);
+                await friendRequestRepository.GetAcceptedFriendRequestForUserAsync(currentUserId,
+                    cancellationToken);
 
             var friendUserIds = new HashSet<string>();
             foreach (var friendship in friendships)
@@ -93,16 +108,21 @@ public class FriendshipService(
             var friendModels = new List<UserModel>();
             foreach (var friendId in friendUserIds)
             {
-                var friendUser = await userRepository.GetByIdAsync(friendId);
+                var authorProfilePicture =
+                    await applicationFileRepository.GetLatestUserFileByTypeAsync(friendId,
+                        FileType.Post, cancellationToken);
+
+                var friendUser = await userRepository.GetByIdAsync(friendId, cancellationToken);
                 if (friendUser != null)
                 {
                     friendModels.Add(new UserModel
                     {
                         Id = friendUser.Id,
-                        UserName = friendUser.UserName,
+                        UserName = friendUser.UserName ?? string.Empty,
                         FirstName = friendUser.FirstName,
                         LastName = friendUser.LastName,
-                        Email = friendUser.Email
+                        Email = friendUser.Email ?? string.Empty,
+                        ProfilePicture = authorProfilePicture?.FilePath ?? string.Empty,
                     });
                 }
             }
@@ -113,6 +133,100 @@ public class FriendshipService(
         {
             return Result<IEnumerable<UserModel>>.Failure(
                 new Error("Friends.Exception", $"Failed to retrieve friends: {ex.Message}"));
+        }
+    }
+
+    public async Task<Result<IEnumerable<UserModel>>> GetMutualFriendsAsync(string targetUserId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var currentUserId = userAccessor.GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Result<IEnumerable<UserModel>>.Failure(new Error("Auth.Unauthorized",
+                    "User must be authenticated."));
+            }
+
+            if (string.IsNullOrEmpty(targetUserId))
+            {
+                return Result<IEnumerable<UserModel>>.Failure(
+                    new Error("MutualFriends.InvalidTarget", "Target user ID cannot be empty"));
+            }
+
+            var targetUser = await userManager.FindByIdAsync(targetUserId);
+            if (targetUser == null)
+            {
+                return Result<IEnumerable<UserModel>>.Failure(
+                    new Error("MutualFriends.UserNotFound",
+                        "The specified target user does not exist"));
+            }
+
+            var currentUserFriendships =
+                await friendRequestRepository.GetAcceptedFriendRequestForUserAsync(currentUserId,
+                    cancellationToken);
+
+            var currentUserFriendIds = new HashSet<string>();
+            foreach (var friendship in currentUserFriendships)
+            {
+                if (friendship.SenderId == currentUserId)
+                {
+                    currentUserFriendIds.Add(friendship.ReceiverId);
+                }
+                else if (friendship.ReceiverId == currentUserId)
+                {
+                    currentUserFriendIds.Add(friendship.SenderId);
+                }
+            }
+
+            var targetUserFriendships =
+                await friendRequestRepository.GetAcceptedFriendRequestForUserAsync(targetUserId,
+                    cancellationToken);
+
+            var targetUserFriendIds = new HashSet<string>();
+            foreach (var friendship in targetUserFriendships)
+            {
+                if (friendship.SenderId == targetUserId)
+                {
+                    targetUserFriendIds.Add(friendship.ReceiverId);
+                }
+                else if (friendship.ReceiverId == targetUserId)
+                {
+                    targetUserFriendIds.Add(friendship.SenderId);
+                }
+            }
+
+            var mutualFriendIds = currentUserFriendIds.Intersect(targetUserFriendIds);
+
+            var mutualFriendModels = new List<UserModel>();
+            foreach (var friendId in mutualFriendIds)
+            {
+                var friendProfilePicture =
+                    await applicationFileRepository.GetLatestUserFileByTypeAsync(friendId,
+                        FileType.ProfilePicture, cancellationToken);
+
+                var friendUser = await userRepository.GetByIdAsync(friendId, cancellationToken);
+                if (friendUser != null)
+                {
+                    mutualFriendModels.Add(new UserModel
+                    {
+                        Id = friendUser.Id,
+                        UserName = friendUser.UserName ?? string.Empty,
+                        FirstName = friendUser.FirstName,
+                        LastName = friendUser.LastName,
+                        Email = friendUser.Email ?? string.Empty,
+                        ProfilePicture = friendProfilePicture?.FilePath ?? string.Empty,
+                    });
+                }
+            }
+
+            return Result<IEnumerable<UserModel>>.Success(mutualFriendModels);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<UserModel>>.Failure(
+                new Error("MutualFriends.Exception",
+                    $"Failed to retrieve mutual friends: {ex.Message}"));
         }
     }
 }
