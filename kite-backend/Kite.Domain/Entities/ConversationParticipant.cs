@@ -9,6 +9,7 @@ public class ConversationParticipant : IEntity<Guid>
     public string UserId { get; set; } = string.Empty;
     public DateTimeOffset JoinedAt { get; set; }
     public DateTimeOffset? LastReadAt { get; set; }
+    public bool IsModerator { get; set; }
     
     public virtual Conversation Conversation { get; set; } = null!;
     public virtual ApplicationUser User { get; set; } = null!;

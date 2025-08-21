@@ -2,6 +2,7 @@ using AutoMapper;
 using Kite.Application.Interfaces;
 using Kite.Application.Models;
 using Kite.Domain.Common;
+using Kite.Domain.Entities;
 using Kite.Domain.Enums;
 using Kite.Domain.Interfaces;
 
@@ -12,6 +13,7 @@ public class UserService(
     IConversationRepository conversationRepository,
     IApplicationFileRepository applicationFileRepository,
     IMapper mapper,
+    IConversationParticipantRepository conversationParticipantRepository,
     IPostRepository postRepository) : IUserService
 {
     public async Task<Result<IEnumerable<ConversationModel>>> GetUserConversationsAsync(
@@ -19,10 +21,8 @@ public class UserService(
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrEmpty(currentUserId))
-        {
             return Result<IEnumerable<ConversationModel>>.Failure(new Error("Auth.Unauthorized",
                 "User must be authenticated."));
-        }
 
         var conversations =
             await conversationRepository.GetConversationsByUserIdAsync(currentUserId,
@@ -84,16 +84,12 @@ public class UserService(
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrEmpty(currentUserId))
-        {
             return Result<List<PostModel>>.Failure(new Error("Auth.Unauthorized",
                 "User must be authenticated to create posts"));
-        }
 
         var posts = await postRepository.GetPostsForUserAsync(currentUserId, cancellationToken);
         if (posts is null)
-        {
             return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
-        }
 
         var postModels = mapper.Map<List<PostModel>>(posts);
 
@@ -105,12 +101,35 @@ public class UserService(
     {
         var posts = await postRepository.GetPostsForUserAsync(userId, cancellationToken);
         if (posts is null)
-        {
             return Result<List<PostModel>>.Failure(new Error("Posts.NotFound", "No posts found"));
-        }
 
         var postModels = mapper.Map<List<PostModel>>(posts);
 
         return Result<List<PostModel>>.Success(postModels);
+    }
+
+    public async Task<Result<IEnumerable<ConversationModel>>> GetMutualConversationsAsync(
+        string targetUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrEmpty(currentUserId))
+            return Result<IEnumerable<ConversationModel>>.Failure(
+                new Error("Auth.Unauthorized", "User must be authenticated."));
+        if (string.IsNullOrEmpty(targetUserId))
+            return Result<IEnumerable<ConversationModel>>.Failure(
+                new Error("User.InvalidId", "Target user ID cannot be null or empty."));
+
+        var mutualConversations =
+            await conversationParticipantRepository.GetMutualConversationsAsync(currentUserId,
+                targetUserId, cancellationToken);
+
+        if (mutualConversations is null)
+            return Result<IEnumerable<ConversationModel>>.Failure(
+                new Error("Conversations.NotFound", "No mutual conversations found."));
+        
+        var conversationModels = mapper.Map<IEnumerable<ConversationModel>>(mutualConversations);
+
+        return Result<IEnumerable<ConversationModel>>.Success(conversationModels);
     }
 }

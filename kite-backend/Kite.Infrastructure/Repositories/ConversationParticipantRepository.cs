@@ -10,6 +10,24 @@ public class ConversationParticipantRepository : GenericRepository<ConversationP
     {
     }
     
+    public async Task<IEnumerable<Conversation>?> GetMutualConversationsAsync(
+        string userIdA,
+        string userIdB,
+        CancellationToken cancellationToken = default)
+    {
+        var mutualConversationIds = _dbSet
+            .AsNoTracking()
+            .Where(cp => cp.UserId == userIdA || cp.UserId == userIdB)
+            .GroupBy(cp => cp.ConversationId)
+            .Where(g => g.Select(cp => cp.UserId).Distinct().Count() == 2)
+            .Select(g => g.Key);
+
+        return await _context.Conversations
+            .AsNoTracking()
+            .Where(c => mutualConversationIds.Contains(c.Id))
+            .ToListAsync(cancellationToken);
+    }
+    
     public async Task<List<ApplicationUser>> GetNonParticipantsAsync(
         Guid conversationId,
         CancellationToken cancellationToken = default)

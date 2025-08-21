@@ -9,7 +9,7 @@ public class FriendRequest : IEntity<Guid>
     public Guid Id { get; set; }
     public required string SenderId { get; set; }
     public required string ReceiverId { get; set; }
-    public ApplicationUser UserOne { get; set; }
+    public ApplicationUser UserOne { get; set; } 
     public ApplicationUser UserTwo { get; set; }
     public FriendRequestStatus Status { get; set; }
     [NotMapped]

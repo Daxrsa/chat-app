@@ -11,7 +11,7 @@ public class FriendRequestRepository : GenericRepository<FriendRequest, Guid>, I
     {
     }
 
-    public async Task<IEnumerable<FriendRequest?>> GetPendingReceivedFriendRequestsAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<FriendRequest>?> GetPendingReceivedFriendRequestsAsync(string userId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
             .Where(f => f.ReceiverId == userId && f.Status == FriendRequestStatus.Pending)
@@ -19,7 +19,7 @@ public class FriendRequestRepository : GenericRepository<FriendRequest, Guid>, I
             .ToListAsync(cancellationToken);
     }
     
-    public async Task<IEnumerable<FriendRequest?>> GetPendingSentFriendRequestsAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<FriendRequest>?> GetPendingSentFriendRequestsAsync(string userId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
             .Where(f => f.SenderId == userId && f.Status == FriendRequestStatus.Pending)

@@ -14,8 +14,78 @@ public class ConversationParticipantService(
     IConversationParticipantRepository conversationParticipantRepository,
     UserManager<ApplicationUser> userManager,
     IUnitOfWork unitOfWork,
+    IFriendRequestRepository friendRequestRepository,
+    IFriendshipService friendshipService,
+    IUserService userService,
     IApplicationFileRepository applicationFileRepository) : IConversationParticipantService
 {
+    public async Task<Result<ConversationParticipantModel>> GetSingleParticipantAsync(
+        Guid participantId,
+        CancellationToken cancellationToken = default)
+    {
+        if (participantId == Guid.Empty)
+            return Result<ConversationParticipantModel>.Failure(
+                new Error("Participant.InvalidInput", "Participant id is required."));
+
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return Result<ConversationParticipantModel>.Failure(
+                new Error("Auth.Unauthorized", "User must be authenticated."));
+        
+        var participant =
+            await conversationParticipantRepository.GetByIdAsync(participantId, cancellationToken);
+        if (participant is null)
+            return Result<ConversationParticipantModel>.Failure(
+                new Error("Participant.NotFound", "Participant not found."));
+        
+        var conversation =
+            await conversationRepository.GetByIdAsync(participant.ConversationId,
+                cancellationToken);
+        if (conversation is null)
+            return Result<ConversationParticipantModel>.Failure(
+                new Error("Conversation.NotFound", "Conversation not found."));
+
+        var callerIsParticipant = conversation.Participants.Any(p => p.UserId == currentUserId);
+        if (!callerIsParticipant)
+            return Result<ConversationParticipantModel>.Failure(
+                new Error("Auth.Forbidden", "You are not a participant of this conversation."));
+        
+        var user = await userManager.FindByIdAsync(participant.UserId);
+        if (user is null)
+            return Result<ConversationParticipantModel>.Failure(
+                new Error("User.NotFound", "User associated with this participant not found."));
+        
+        var friendRequest = await friendRequestRepository.GetFriendRequestBetweenUsersAsync(
+            currentUserId, user.Id, cancellationToken);
+
+        var friendshipStatus = friendRequest is null ? FriendRequestStatus.None : friendRequest.Status;     
+
+        var profilePicture = await applicationFileRepository.GetLatestUserFileByTypeAsync(
+            user.Id, FileType.ProfilePicture, cancellationToken);
+        
+        var mutualFriends = await friendshipService.GetMutualFriendsAsync(
+            user.Id, cancellationToken);
+        
+        var mutualConversations = await userService.GetMutualConversationsAsync(user.Id, cancellationToken);
+        
+        var model = new ConversationParticipantModel
+        {
+            UserId = user.Id,
+            UserName = user.UserName ?? string.Empty,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            ProfilePictureUrl = profilePicture?.FilePath ?? string.Empty,
+            JoinedAt = participant.JoinedAt,
+            MutualFriends = mutualFriends.Value,
+            MutualFriendsCount = mutualFriends?.Value?.Count(),
+            MutualConversations = mutualConversations.Value, 
+            MutualConversationsCount = mutualConversations?.Value?.Count(), 
+            FriendshipStatus = friendshipStatus
+        };
+
+        return Result<ConversationParticipantModel>.Success(model);
+    }
+
     public async Task<Result<ConversationParticipantModel>> AddParticipantAsync(Guid conversationId,
         string userId,
         CancellationToken cancellationToken = default)
@@ -240,37 +310,78 @@ public class ConversationParticipantService(
     {
         var currentUserId = userAccessor.GetCurrentUserId();
         if (string.IsNullOrWhiteSpace(currentUserId))
-            return Result<bool>.Failure(new Error("Auth.Unauthorized", "User must be authenticated."));
+            return Result<bool>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated."));
 
         if (conversationId == Guid.Empty || string.IsNullOrWhiteSpace(userId))
-            return Result<bool>.Failure(new Error("Conversation.InvalidInput", "Conversation and user are required."));
+            return Result<bool>.Failure(new Error("Conversation.InvalidInput",
+                "Conversation and user are required."));
 
-        var conversation = await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        var conversation =
+            await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
         if (conversation is null)
-            return Result<bool>.Failure(new Error("Conversation.NotFound", "Conversation not found."));
+            return Result<bool>.Failure(new Error("Conversation.NotFound",
+                "Conversation not found."));
 
         if (conversation.OwnerId != currentUserId)
-            return Result<bool>.Failure(new Error("Conversation.Forbidden", "Only the owner can promote admins."));
+            return Result<bool>.Failure(new Error("Conversation.Forbidden",
+                "Only the owner can promote admins."));
 
         if (userId == conversation.OwnerId)
-            return Result<bool>.Failure(new Error("Conversation.InvalidOperation", "Owner cannot be promoted."));
+            return Result<bool>.Failure(new Error("Conversation.InvalidOperation",
+                "Owner cannot be promoted."));
 
         var participant = conversation.Participants.FirstOrDefault(p => p.UserId == userId);
         if (participant is null)
-            return Result<bool>.Failure(new Error("Participant.NotFound", "User is not a participant of this conversation."));
+            return Result<bool>.Failure(new Error("Participant.NotFound",
+                "User is not a participant of this conversation."));
 
-        if (participant.IsAdmin)
+        if (participant.IsModerator)
             return Result<bool>.Success();
 
-        participant.IsAdmin = true;
+        participant.IsModerator = true;
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<bool>.Success();
     }
 
-    public Task<Result<bool>> DemoteModeratorAsync(Guid conversationId, string userId,
+    public async Task<Result<bool>> DemoteModeratorAsync(Guid conversationId, string userId,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var currentUserId = userAccessor.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return Result<bool>.Failure(new Error("Auth.Unauthorized",
+                "User must be authenticated."));
+
+        if (conversationId == Guid.Empty || string.IsNullOrWhiteSpace(userId))
+            return Result<bool>.Failure(new Error("Conversation.InvalidInput",
+                "Conversation and user are required."));
+
+        var conversation =
+            await conversationRepository.GetByIdAsync(conversationId, cancellationToken);
+        if (conversation is null)
+            return Result<bool>.Failure(new Error("Conversation.NotFound",
+                "Conversation not found."));
+
+        if (conversation.OwnerId != currentUserId)
+            return Result<bool>.Failure(new Error("Conversation.Forbidden",
+                "Only the owner can demote moderators."));
+
+        if (userId == conversation.OwnerId)
+            return Result<bool>.Failure(new Error("Conversation.InvalidOperation",
+                "Owner cannot be demoted."));
+
+        var participant = conversation.Participants.FirstOrDefault(p => p.UserId == userId);
+        if (participant is null)
+            return Result<bool>.Failure(new Error("Participant.NotFound",
+                "User is not a participant of this conversation."));
+
+        if (!participant.IsModerator)
+            return Result<bool>.Success();
+
+        participant.IsModerator = false;
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result<bool>.Success();
     }
 }
