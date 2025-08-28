@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Kite.Infrastructure.Hubs;
 
-public class ChatHub(IUserAccessor userAccessor) : Hub
+public class ConversationHub(IUserAccessor userAccessor) : Hub
 {
     public override async Task OnConnectedAsync()
     {

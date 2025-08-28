@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Kite.Web.Hubs;
 
+// Small adapter that wraps SignalR to send a single notification to a specific user.
 public class SignalRHubContext(
     IHubContext<NotificationHub> hubContext) : INotificationHubContext
 {
@@ -14,7 +15,7 @@ public class SignalRHubContext(
         try
         {
             await hubContext.Clients.User(userId).SendAsync(method, arg, cancellationToken);
-            return Result<bool>.Success(); 
+            return Result<bool>.Success();
         }
         catch (Exception ex)
         {

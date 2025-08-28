@@ -93,6 +93,7 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IConversationBanService, ConversationBanService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
@@ -104,6 +105,7 @@ builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+builder.Services.AddScoped<IConversationParticipantRepository, ConversationParticipantRepository>();
 builder.Services.AddScoped<IConversationParticipantRepository, ConversationParticipantRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
