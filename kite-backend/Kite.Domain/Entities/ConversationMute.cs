@@ -1,17 +1,15 @@
 using Kite.Domain.Enums;
-using Kite.Domain.Interfaces;
 using Kite.Domain.ValueObjects;
 
 namespace Kite.Domain.Entities;
 
-public class ConversationBan : IEntity<Guid>
+public class ConversationMute
 {
     public Guid Id { get; set; }
     public Guid ConversationId { get; set; }
     public string UserId { get; set; } = string.Empty;
-    public string BannedByUserId { get; set; } = string.Empty;
-    public BanReason Reason { get; set; }
-    public BanStatus Status { get; set; }
+    public string MutedByUserId { get; set; } = string.Empty;
+    public MuteReason Reason { get; set; }
     public DateTimeOffset? ExpiresAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

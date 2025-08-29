@@ -93,7 +93,7 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IConversationService, ConversationService>();
 builder.Services.AddScoped<IConversationParticipantService, ConversationParticipantService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IConversationBanService, ConversationBanService>();
+builder.Services.AddScoped<IConversationModerationService, ConversationModerationService>();
 
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
@@ -106,7 +106,7 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 builder.Services.AddScoped<IConversationParticipantRepository, ConversationParticipantRepository>();
-builder.Services.AddScoped<IConversationParticipantRepository, ConversationParticipantRepository>();
+builder.Services.AddScoped<IConversationBanRepository, ConversationBanRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddScoped<FileUrlResolver<AttachedFileModel>>();
